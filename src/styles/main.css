@@ -1,0 +1,128 @@
+/* general resets */
+input:focus-visible {
+  outline: none;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body,
+html,
+#app {
+  overflow: hidden;
+  padding: 0;
+  margin: 0;
+  background-color: var(--background1);
+}
+
+/* global styles */
+main {
+  overflow: auto;
+}
+
+h1 {
+  font-size: var(--heading);
+  font-weight: var(--semibold);
+  margin: 0;
+  color: var(--text1);
+}
+
+h2,
+h3 {
+  /* since we only use headings and subheadings, the h3 is the same as h2... */
+  font-size: var(--subheading);
+  font-weight: var(--semibold);
+  margin: 0;
+  color: var(--text1);
+}
+
+p {
+  font-size: var(--body);
+  font-weight: var(--regular);
+  margin: 0;
+  color: var(--text1);
+}
+
+span {
+  font-size: var(--span);
+  font-weight: var(--regular);
+  margin: 0;
+  color: var(--text2);
+}
+
+a {
+  font-size: var(--span);
+  font-weight: var(--regular);
+  margin: 0;
+  color: var(--text1);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--link);
+}
+
+button {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  border: var(--border);
+  background-color: var(--background2);
+  color: var(--text1);
+  border-radius: var(--radius-sm);
+  font-size: var(--span);
+  font-weight: var(--medium);
+  height: fit-content;
+  padding: 6px var(--xs-spacing);
+  transition: var(--transition);
+}
+button:hover {
+  cursor: pointer;
+  filter: brightness(90%);
+}
+
+input {
+  background-color: var(--background2);
+  border-radius: var(--radius-sm);
+  border: var(--border);
+  padding: 6px var(--xs-spacing);
+  transition: var(--transition);
+  font-size: var(--span);
+}
+input:hover,
+input:active,
+input:focus {
+  border: 1px solid var(--primary);
+  box-shadow: 0px 0px 4px var(--primary);
+}
+
+.link {
+  color: var(--link);
+  width: fit-content;
+}
+
+/* styling for lucide icons... */
+.icon {
+  width: 16px;
+  height: 16px;
+}
+
+.medium {
+  font-weight: var(--medium);
+}
+
+:disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.clip-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

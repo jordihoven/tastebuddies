@@ -1,0 +1,78 @@
+/* google font import */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+/* variables */
+:root {
+  /* colors */
+  --black: #000;
+  --white: #fff;
+  --primary: #0070f3;
+  --darkgrey: #444;
+  --lightgrey: #888;
+  --danger: #ef4444;
+  --button-color-primary: #fff;
+
+  /* typography */
+  --heading: 2rem;
+  --subheading: 1.25rem;
+  --body: 1rem;
+  --span: 0.875rem;
+  /* font weights */
+  --regular: 400;
+  --medium: 500;
+  --semibold: 600;
+  --bold: 700;
+  /* spacing */
+  --xxs-spacing: 4px;
+  --xs-spacing: 8px;
+  --sm-spacing: 12px;
+  --s-spacing: 16px;
+  --m-spacing: 24px;
+  --l-spacing: 40px;
+  --xl-spacing: 64px;
+  --huge-spacing: 10rem;
+  /* sizes */
+  --m-max: 48rem;
+  --l-max: 80rem;
+  /* others */
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.3s ease;
+  --fast-transition: all 0.2s ease-in-out;
+  --border: 1px solid var(--stroke);
+  --box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.5);
+  /* media queries */
+  --mobile: 600px;
+  --tablet: 992px;
+  color-scheme: light dark;
+}
+
+/* Dark mode */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #232323;
+    --background1: #1a1a1a;
+    --background2: #2a2a2a;
+    --text1: #fcfcfc;
+    --text2: #a3a3a3;
+    --surface: #1e1e1e;
+    --stroke: #3e3e3e;
+    --link: #4493f8;
+    --scrollbar: #3d3d3d;
+  }
+}
+
+/* Light mode */
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #f2f2f2;
+    --background1: #fafafa;
+    --background2: #fff;
+    --text1: #171717;
+    --text2: #525252;
+    --surface: #f2f2f2;
+    --stroke: #e4e4e4;
+    --link: #0969da;
+    --scrollbar: #d3d3d3;
+  }
+}
