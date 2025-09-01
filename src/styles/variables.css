@@ -41,6 +41,7 @@
   --fast-transition: all 0.2s ease-in-out;
   --border: 1px solid var(--stroke);
   --box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.5);
+  --box-shadow-card: 0px 2px 12px 0px rgba(131, 131, 131, 0.15);
   /* media queries */
   --mobile: 600px;
   --tablet: 992px;

@@ -1,25 +1,16 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { supabase } from './lib/supabase.ts'
-
-onMounted(async () => {
-  const { data, error } = await supabase.from('recipes').select('*')
-  if (error) console.error(error)
-  else recipes.value = data
-})
-
-interface Recipe {
-  id: string
-  name: string
-}
-const recipes = ref<Recipe[]>([])
+import TabBar from './components/TabBar.vue'
+import AppHeader from './components/AppHeader.vue'
 </script>
 
 <template>
-  <p>Tastebuddies</p>
-  <ul>
-    <li v-for="r in recipes" :key="r.id">{{ r.name }}</li>
-  </ul>
+  <AppHeader />
+  <router-view class="container"></router-view>
+  <TabBar />
 </template>
 
-<style scoped></style>
+<style scoped>
+.container {
+  padding: var(--xs-spacing);
+}
+</style>
