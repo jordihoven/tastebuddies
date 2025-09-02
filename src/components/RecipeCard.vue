@@ -23,7 +23,7 @@ import { Clock, Apple, Star } from 'lucide-vue-next'
 </script>
 
 <template>
-  <div class="recipe-card">
+  <div class="recipe-card flex flex-col gap-2">
     <img v-if="props.recipe.image_url" :src="props.recipe.image_url" alt="recipe image" />
     <div class="recipe-info flex flex-col gap-[4px]">
       <p class="medium">{{ props.recipe.name }}</p>
@@ -56,6 +56,7 @@ import { Clock, Apple, Star } from 'lucide-vue-next'
 }
 .recipe-card img {
   border-radius: calc(var(--radius) - var(--xxs-spacing));
-  max-height: 60vh;
+  max-height: 40vh;
+  width: 100%;
 }
 </style>
