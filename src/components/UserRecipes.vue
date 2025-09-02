@@ -1,26 +1,58 @@
 <template>
-  <div class="recipes-grid">
-    <div class="recipe" v-for="recipe in recipes" :key="recipe.id">
-      <p>{{ recipe.name }}</p>
-    </div>
+  <div class="recipes-grid" v-if="savedRecipes.length">
+    <RecipeCard
+      v-for="recipe in savedRecipes"
+      :key="recipe.id"
+      :recipe="recipe"
+      :has-recipe-info="false"
+    />
   </div>
+  <div v-else>
+    <p class="text2">Liked recipes will be shown here.</p>
+  </div>
+  <button v-if="savedRecipes.length" @click="ClearLocalRecipes" class="w-fit mt-4">
+    Clear recipes
+  </button>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase.ts'
-
-onMounted(async () => {
-  const { data, error } = await supabase.from('recipes').select('*')
-  if (error) console.error(error)
-  else recipes.value = data
-})
+// @ts-ignore
+import RecipeCard from './RecipeCard.vue' // find out why .vue imports are seen as type
 
 interface Recipe {
   id: string
   name: string
+  duration: number
+  difficulty: string
+  calories: number
+  image_url: string
 }
-const recipes = ref<Recipe[]>([])
+
+const SAVED_KEY = 'likedRecipes'
+const savedRecipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
+const savedRecipes = ref<Recipe[]>([])
+
+async function fetchSavedRecipes() {
+  if (!savedRecipeIds.length) return // if there's no recipes saved, don't fetch...
+
+  const { data, error } = await supabase.from('recipes').select('*').in('id', savedRecipeIds)
+
+  if (error) {
+    console.error('Error fetching: ', error)
+  } else {
+    savedRecipes.value = data ?? []
+  }
+}
+
+// temp method to clear recipes from local storage...
+function ClearLocalRecipes() {
+  localStorage.removeItem(SAVED_KEY)
+  window.location.reload()
+}
+
+onMounted(fetchSavedRecipes)
 </script>
 
 <style scoped>

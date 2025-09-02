@@ -1,37 +1,62 @@
-<script setup>
+<script setup lang="ts">
 import { Clock, Apple, Star, HeartOff, Heart } from 'lucide-vue-next'
+import { ref, computed, onMounted } from 'vue'
+import { supabase } from '@/lib/supabase.ts'
+// @ts-ignore
+import RecipeCard from './RecipeCard.vue' // find out why .vue imports are seen as type
+
+// Recipe type (should be stored elsewhere, since this interface will be used in multiple places)
+interface Recipe {
+  id: string
+  name: string
+  duration: number
+  difficulty: string
+  calories: number
+  image_url: string
+}
+const recipes = ref<Recipe[]>([]) // storing all recipes, fetched from supabase...
+const currentRecipe = computed(() => recipes.value[0] ?? null) // the current recipe to be swiped...
+
+// get recipes from supabase...
+async function loadRecipes() {
+  console.log('loading recipes...')
+
+  const { data, error } = await supabase.from('recipes').select('*').limit(10)
+
+  if (error) {
+    console.error(error)
+    return
+  }
+
+  recipes.value = data ?? [] // store the fetched recipes (or clear recipes of nothing is fetched?)
+}
+
+onMounted(loadRecipes)
+
+const SAVED_KEY = 'likedRecipes'
+
+// load saved recipe ids from localstorage
+const savedRecipes = ref<string[]>(JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'))
 
 const likeRecipe = () => {
-  alert('Recipe liked')
+  const recipe = recipes.value.shift()
+  if (recipe) {
+    savedRecipes.value.push(recipe.id)
+    localStorage.setItem(SAVED_KEY, JSON.stringify(savedRecipes.value))
+  }
 }
 const dislikeRecipe = () => {
-  alert('Recipe disliked')
+  recipes.value.shift() // remove the recipe from the array...
 }
 </script>
 
 <template>
   <div class="flex flex-col flex-1 justify-center">
-    <section class="recipe-card flex flex-col gap-2">
-      <img src="https://picsum.dev/200/100" />
-      <div class="recipe-info flex flex-col gap-[4px]">
-        <p class="medium">Pokebowl Salmon</p>
-        <div class="flex gap-2">
-          <!-- make duration, calories & difficulty into a RecipeInfo component taking a type of duration, calories or difficulty? -->
-          <div class="duration flex gap-1 items-center">
-            <Clock size="16" color="var(--text2)" />
-            <span class="medium">25min</span>
-          </div>
-          <div class="carlories flex gap-1 items-center">
-            <Apple size="16" color="var(--text2)" />
-            <span class="medium">430kcal</span>
-          </div>
-          <div class="difficulty flex gap-1 items-center">
-            <Star size="16" color="var(--text2)" />
-            <span class="medium">Easy</span>
-          </div>
-        </div>
-      </div>
+    <section class="flex flex-col gap-2">
+      <RecipeCard v-if="currentRecipe" :recipe="currentRecipe" />
+      <div v-else><p class="medium text-2 text-center">No more recipes to show...</p></div>
     </section>
+
     <section class="recipe-actions flex gap-2 justify-center mt-4">
       <button @click="dislikeRecipe" class="dislike"><HeartOff color="var(--danger)" /></button>
       <button @click="likeRecipe" class="like"><Heart color="var(--primary)" /></button>
@@ -49,6 +74,7 @@ const dislikeRecipe = () => {
 }
 .recipe-card img {
   border-radius: calc(var(--radius) - var(--xxs-spacing));
+  max-height: 60vh;
 }
 
 button.dislike,

@@ -5,12 +5,20 @@ import AppHeader from './components/AppHeader.vue'
 
 <template>
   <AppHeader />
-  <router-view class="container"></router-view>
+  <main class="page-content">
+    <router-view></router-view>
+  </main>
   <TabBar />
 </template>
 
-<style scoped>
-.container {
+<style>
+.page-content {
+  max-width: 60em;
+  margin: 0 auto;
   padding: var(--xs-spacing);
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 </style>
