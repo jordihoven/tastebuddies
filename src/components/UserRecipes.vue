@@ -18,8 +18,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase.ts'
-// @ts-ignore
-import RecipeCard from './RecipeCard.vue' // find out why .vue imports are seen as type
+import RecipeCard from './RecipeCard.vue'
 
 interface Recipe {
   id: string

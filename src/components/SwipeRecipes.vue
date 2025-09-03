@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Clock, Apple, Star, HeartOff, Heart } from 'lucide-vue-next'
+import { HeartOff, Heart } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase.ts'
 // @ts-ignore
-import RecipeCard from './RecipeCard.vue' // find out why .vue imports are seen as type
+import RecipeCard from './RecipeCard.vue'
 
 // Recipe type (should be stored elsewhere, since this interface will be used in multiple places)
 interface Recipe {
@@ -53,7 +53,7 @@ const dislikeRecipe = () => {
 <template>
   <div class="flex flex-col flex-1 justify-center">
     <section class="flex flex-col gap-2">
-      <RecipeCard v-if="currentRecipe" :recipe="currentRecipe" />
+      <RecipeCard v-if="currentRecipe" :recipe="currentRecipe" :hasRecipeInfo="true" />
       <div v-else><p class="medium text-2 text-center">No more recipes to show...</p></div>
     </section>
 

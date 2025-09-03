@@ -17,6 +17,7 @@ nav {
   width: 100%;
   border-top: 1px solid var(--stroke);
   padding: 1rem;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
 nav a {

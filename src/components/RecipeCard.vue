@@ -7,6 +7,7 @@ const props = withDefaults(
   }>(),
   {
     hasRecipeInfo: true,
+    // make this not required, so that not giving it means it's shown...
   },
 )
 

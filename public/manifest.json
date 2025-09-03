@@ -1,0 +1,13 @@
+{
+  "short_name": "Budds",
+  "name": "Tastebuddies",
+  "start_url": "/",
+  "display": "standalone",
+  "icons": [
+    {
+      "src": "/public/favicon.png",
+      "sizes": "120x120",
+      "type": "image/png"
+    }
+  ]
+}

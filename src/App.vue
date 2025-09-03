@@ -1,6 +1,12 @@
 <script setup lang="ts">
+// @ts-ignore
 import TabBar from './components/TabBar.vue'
+// @ts-ignore
 import AppHeader from './components/AppHeader.vue'
+
+import { useThemeColor } from './composables/useThemeColor'
+
+useThemeColor()
 </script>
 
 <template>
