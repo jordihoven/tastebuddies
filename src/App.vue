@@ -5,6 +5,13 @@ import TabBar from './components/TabBar.vue'
 import AppHeader from './components/AppHeader.vue'
 
 import { useThemeColor } from './composables/useThemeColor'
+import { onMounted } from 'vue'
+
+import { useUserStore } from '@/stores/user'
+const userStore = useUserStore()
+onMounted(() => {
+  userStore.fetchUser()
+})
 
 useThemeColor()
 </script>

@@ -1,3 +1,49 @@
+<script setup lang="ts">
+import { ref, onMounted } from 'vue'
+import { supabase } from '@/lib/supabase.ts'
+import RecipeCard from './RecipeCard.vue'
+
+import { useUserStore } from '@/stores/user'
+const userStore = useUserStore()
+
+const SAVED_KEY = 'likedRecipes'
+const savedRecipes = ref<Recipe[]>([])
+
+async function fetchSavedRecipes() {
+  if (userStore.user) {
+    // Logged in → fetch from saved_recipes
+    const { data, error } = await supabase
+      .from('saved_recipes')
+      .select('recipe_id')
+      .eq('user_id', userStore.user.id)
+
+    if (error) {
+      console.error('Error: ', error)
+      return
+    }
+
+    const recipeIds = data.map((d) => d.recipe_id)
+    if (!recipeIds.length) return
+
+    const { data: recipesData, error: recipesError } = await supabase
+      .from('recipes')
+      .select('*')
+      .in('id', recipeIds)
+
+    if (!recipesError) savedRecipes.value = recipesData ?? []
+  } else {
+    // Guest → localStorage
+    const recipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
+    if (!recipeIds.length) return
+
+    const { data, error } = await supabase.from('recipes').select('*').in('id', recipeIds)
+    if (!error) savedRecipes.value = data ?? []
+  }
+}
+
+onMounted(fetchSavedRecipes)
+</script>
+
 <template>
   <div class="recipes-grid" v-if="savedRecipes.length">
     <RecipeCard
@@ -10,49 +56,7 @@
   <div v-else>
     <p class="text2">Liked recipes will be shown here.</p>
   </div>
-  <button v-if="savedRecipes.length" @click="ClearLocalRecipes" class="w-fit mt-4">
-    Clear recipes
-  </button>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { supabase } from '@/lib/supabase.ts'
-import RecipeCard from './RecipeCard.vue'
-
-interface Recipe {
-  id: string
-  name: string
-  duration: number
-  difficulty: string
-  calories: number
-  image_url: string
-}
-
-const SAVED_KEY = 'likedRecipes'
-const savedRecipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
-const savedRecipes = ref<Recipe[]>([])
-
-async function fetchSavedRecipes() {
-  if (!savedRecipeIds.length) return // if there's no recipes saved, don't fetch...
-
-  const { data, error } = await supabase.from('recipes').select('*').in('id', savedRecipeIds)
-
-  if (error) {
-    console.error('Error fetching: ', error)
-  } else {
-    savedRecipes.value = data ?? []
-  }
-}
-
-// temp method to clear recipes from local storage...
-function ClearLocalRecipes() {
-  localStorage.removeItem(SAVED_KEY)
-  window.location.reload()
-}
-
-onMounted(fetchSavedRecipes)
-</script>
 
 <style scoped>
 .recipes-grid {

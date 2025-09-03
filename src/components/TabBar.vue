@@ -12,12 +12,10 @@ import { User, GalleryHorizontal, UtensilsCrossed } from 'lucide-vue-next'
 
 <style scoped>
 nav {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
   border-top: 1px solid var(--stroke);
   padding: 1rem;
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  background-color: var(--background1);
 }
 
 nav a {

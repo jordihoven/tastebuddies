@@ -1,8 +1,6 @@
 import { watchEffect, onMounted } from 'vue'
 
 export function useThemeColor(cssVarName: string = '--background1') {
-  console.log('using theme color composable...')
-
   const metaId = 'theme-color-meta'
 
   function updateMeta() {

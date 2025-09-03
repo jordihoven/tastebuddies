@@ -11,15 +11,6 @@ const props = withDefaults(
   },
 )
 
-interface Recipe {
-  id: string
-  name: string
-  duration: number
-  difficulty: string
-  calories: number
-  image_url: string
-}
-
 import { Clock, Apple, Star } from 'lucide-vue-next'
 </script>
 
@@ -59,5 +50,6 @@ import { Clock, Apple, Star } from 'lucide-vue-next'
   border-radius: calc(var(--radius) - var(--xxs-spacing));
   max-height: 40vh;
   width: 100%;
+  aspect-ratio: 1/1.5;
 }
 </style>

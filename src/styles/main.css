@@ -74,12 +74,18 @@ button {
   font-size: var(--span);
   font-weight: var(--medium);
   height: fit-content;
-  padding: 6px var(--xs-spacing);
+  padding: 4px var(--xs-spacing);
   transition: var(--transition);
 }
 button:hover {
   cursor: pointer;
   filter: brightness(90%);
+}
+
+button.primary {
+  color: var(--white);
+  background-color: var(--primary);
+  border: transparent;
 }
 
 input {
