@@ -133,6 +133,10 @@ input:focus {
   text-overflow: ellipsis;
 }
 
+.text1 {
+  color: var(--text1);
+}
+
 .text2 {
   color: var(--text2);
 }

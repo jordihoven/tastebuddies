@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { HeartOff, Heart } from 'lucide-vue-next'
 import { ref, computed, onMounted } from 'vue'
+import router from '@/router'
+// icons
+import { HeartOff, Heart } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase.ts'
+// components
 import RecipeCard from './RecipeCard.vue'
-
+// stores
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 
@@ -51,6 +54,9 @@ const likeRecipe = async () => {
     savedRecipes.value.push(recipe.id)
     localStorage.setItem(SAVED_KEY, JSON.stringify(savedRecipes.value))
   }
+
+  // navigate to the recipe details page...
+  router.push({ path: `/recipe/${recipe.id}` })
 }
 const dislikeRecipe = () => {
   recipes.value.shift() // remove the recipe from the array...

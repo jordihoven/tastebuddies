@@ -1,4 +1,6 @@
 <script setup lang="ts">
+// @ts-ignore
+import RecipeInfo from './RecipeInfo.vue'
 // todo: feel like this can be done cleaner...
 const props = withDefaults(
   defineProps<{
@@ -10,8 +12,6 @@ const props = withDefaults(
     // make this not required, so that not giving it means it's shown...
   },
 )
-
-import { Clock, Apple, Star } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -19,21 +19,17 @@ import { Clock, Apple, Star } from 'lucide-vue-next'
     <img v-if="props.recipe.image_url" :src="props.recipe.image_url" alt="recipe image" />
     <div class="recipe-info flex flex-col gap-[4px]">
       <p class="medium">{{ props.recipe.name }}</p>
-      <div class="flex gap-2" v-if="props.hasRecipeInfo">
-        <!-- make duration, calories & difficulty into a RecipeInfo component taking a type of duration, calories or difficulty? -->
-        <div class="duration flex gap-1 items-center">
-          <Clock :size="16" color="var(--text2)" />
-          <span class="medium">{{ props.recipe.duration }}min</span>
-        </div>
-        <div class="carlories flex gap-1 items-center">
-          <Apple :size="16" color="var(--text2)" />
-          <span class="medium">{{ props.recipe.calories }}kcal</span>
-        </div>
-        <div class="difficulty flex gap-1 items-center">
-          <Star :size="16" color="var(--text2)" />
-          <span class="medium">{{ props.recipe.difficulty }}</span>
-        </div>
-      </div>
+      <RecipeInfo
+        v-if="
+          props.hasRecipeInfo &&
+          props.recipe.duration &&
+          props.recipe.calories &&
+          props.recipe.difficulty
+        "
+        :duration="props.recipe.duration"
+        :calories="props.recipe.calories"
+        :difficulty="props.recipe.difficulty"
+      />
     </div>
   </div>
 </template>
@@ -51,5 +47,6 @@ import { Clock, Apple, Star } from 'lucide-vue-next'
   max-height: 40vh;
   width: 100%;
   aspect-ratio: 1/1.5;
+  object-fit: cover;
 }
 </style>

@@ -5,10 +5,20 @@ import TabBar from './components/TabBar.vue'
 import AppHeader from './components/AppHeader.vue'
 
 import { useThemeColor } from './composables/useThemeColor'
-import { onMounted } from 'vue'
+import { computed, onMounted } from 'vue'
+
+import { useRoute } from 'vue-router'
+const route = useRoute()
+
+// layout related info, based on route...
+const layout = computed(() => ({
+  showBackButton: route.meta.showBackButton === true,
+  hideTabBar: route.meta.hideTabBar === true,
+}))
 
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
+
 onMounted(() => {
   userStore.fetchUser()
 })
@@ -17,11 +27,11 @@ useThemeColor()
 </script>
 
 <template>
-  <AppHeader />
+  <AppHeader :show-back-button="layout.showBackButton" />
   <main class="page-content">
     <router-view></router-view>
   </main>
-  <TabBar />
+  <TabBar v-if="!layout.hideTabBar" />
 </template>
 
 <style>
