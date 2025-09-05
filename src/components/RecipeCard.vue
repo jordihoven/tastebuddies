@@ -15,7 +15,7 @@ const props = withDefaults(
 </script>
 
 <template>
-  <div class="recipe-card flex flex-col gap-2">
+  <div @click="$emit('select', recipe)" class="recipe-card flex flex-col gap-2">
     <img v-if="props.recipe.image_url" :src="props.recipe.image_url" alt="recipe image" />
     <div class="recipe-info flex flex-col gap-[4px]">
       <p class="medium">{{ props.recipe.name }}</p>

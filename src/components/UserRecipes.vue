@@ -4,6 +4,7 @@ import { supabase } from '@/lib/supabase.ts'
 import RecipeCard from './RecipeCard.vue'
 
 import { useUserStore } from '@/stores/user'
+import router from '@/router'
 const userStore = useUserStore()
 
 const SAVED_KEY = 'likedRecipes'
@@ -11,7 +12,6 @@ const savedRecipes = ref<Recipe[]>([])
 
 async function fetchSavedRecipes() {
   if (userStore.user) {
-    console.log('user is logged in!')
     // Logged in → fetch from saved_recipes
     const { data, error } = await supabase
       .from('saved_recipes')
@@ -33,8 +33,6 @@ async function fetchSavedRecipes() {
 
     if (!recipesError) savedRecipes.value = recipesData ?? []
   } else {
-    console.log('guest user!')
-
     // Guest → localStorage
     const recipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
     if (!recipeIds.length) return
@@ -58,7 +56,9 @@ watch(
 <template>
   <div class="recipes-grid" v-if="savedRecipes.length">
     <RecipeCard
+      class="recipe"
       v-for="recipe in savedRecipes"
+      @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
       :key="recipe.id"
       :recipe="recipe"
       :has-recipe-info="false"
@@ -76,19 +76,13 @@ watch(
   gap: var(--xs-spacing);
 }
 
+/* #TODO not sure this should live here, or in the recipeCard */
 .recipe {
-  display: flex;
-  flex-direction: column;
-  gap: var(--xs-spacing);
-  padding: var(--xs-spacing);
-  background-color: var(--background2);
-  border-radius: var(--radius);
-  border: 1px solid var(--stroke);
   transition: var(--transition);
 }
-
 .recipe:hover {
   cursor: pointer;
+  filter: brightness(95%);
 }
 
 @media only screen and (max-width: 660px) {

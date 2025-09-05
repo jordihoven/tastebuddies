@@ -99,6 +99,10 @@ const logoutUser = async () => {
 const isEmailValid = computed(() => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)
 })
+
+const formatUsername = (email: any) => {
+  return email ? email.split('@')[0].slice(0, 2).toUpperCase() : '??'
+}
 </script>
 
 <template>
@@ -124,6 +128,9 @@ const isEmailValid = computed(() => {
       </div>
     </div>
     <div v-else class="flex flex-col gap-2 items-center">
+      <div class="avatar">
+        <span class="medium"> {{ formatUsername(userStore.user.email) }}</span>
+      </div>
       <p class="text2 text-center">{{ userStore.user.email }}</p>
       <button @click="logoutUser" class="w-fit">Logout</button>
     </div>
@@ -134,5 +141,19 @@ const isEmailValid = computed(() => {
 .profile-page {
   max-width: 40em;
   margin: 0 auto;
+}
+
+.avatar {
+  border: var(--border);
+  border-radius: 50px;
+  padding: var(--xs-spacing);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--background2);
+  transition: var(--transition);
+  position: relative;
+  height: 3rem;
+  width: 3rem;
 }
 </style>
