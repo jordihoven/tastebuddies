@@ -6,9 +6,6 @@ import { HeartOff, Heart } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase.ts'
 // components
 import RecipeCard from './RecipeCard.vue'
-// stores
-import { useUserStore } from '@/stores/user'
-const userStore = useUserStore()
 
 const recipes = ref<Recipe[]>([]) // storing all recipes, fetched from supabase...
 const currentRecipe = computed(() => recipes.value[0] ?? null) // the current recipe to be swiped...
@@ -22,7 +19,7 @@ async function loadRecipes() {
     return
   }
 
-  recipes.value = shuffle(data ?? []) // store the fetched recipes (or clear recipes of nothing is fetched?)
+  recipes.value = shuffle(data ?? []) // store the fetched recipes (or clear recipes if nothing is fetched?)
 }
 
 // Fisher-Yates shuffle...
@@ -37,41 +34,15 @@ function shuffle(array: any) {
 
 onMounted(loadRecipes)
 
-const SAVED_KEY = 'likedRecipes'
-
-// load saved recipe ids from localstorage
-const savedRecipes = ref<string[]>(JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'))
-
 const likeRecipe = async () => {
+  // remove the liked recipe from the recipes deck...
   const recipe = recipes.value.shift()
   if (!recipe) return
-
-  if (userStore.user) {
-    // logged in -> supabase storage...
-    await saveRecipeForUser(recipe.id)
-  } else {
-    // anon user -> localStorage...
-    savedRecipes.value.push(recipe.id)
-    localStorage.setItem(SAVED_KEY, JSON.stringify(savedRecipes.value))
-  }
-
   // navigate to the recipe details page...
   router.push({ path: `/recipe/${recipe.id}` })
 }
 const dislikeRecipe = () => {
   recipes.value.shift() // remove the recipe from the array...
-}
-
-async function saveRecipeForUser(recipeId: string) {
-  if (!userStore.user) return // skip if there's no user logged in...
-
-  const { error } = await supabase
-    .from('saved_recipes')
-    .insert({ user_id: userStore.user.id, recipe_id: recipeId })
-
-  if (error) {
-    console.error('Error saving: ', error)
-  }
 }
 </script>
 

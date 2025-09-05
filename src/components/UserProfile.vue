@@ -48,9 +48,44 @@ const verifyOtp = async () => {
   if (error) {
     alert(error.message)
   } else {
+    if (!data.user) {
+      alert('Login failed: no user in supabase...')
+      return
+    }
     userStore.setUser(data.user)
+    await syncLocalStorageToSupabase(data.user.id)
     step.value = '' // reset step, maybe not needed?
   }
+}
+
+const syncLocalStorageToSupabase = async (userId: string) => {
+  const SAVED_KEY = 'likedRecipes'
+  const localRecipeIds: string[] = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
+  if (!localRecipeIds.length) return
+
+  // insert only the ids not already in supabase
+  const { data: existing, error } = await supabase
+    .from('saved_recipes')
+    .select('recipe_id')
+    .eq('user_id', userId)
+    .in('recipe_id', localRecipeIds)
+
+  if (error) {
+    console.error('Error checking existing saved recipes in supabase: ', error)
+    return
+  }
+
+  const existingIds = existing.map((recipes) => recipes.recipe_id)
+  const newIds = localRecipeIds.filter((id) => !existingIds.includes(id))
+
+  if (newIds.length) {
+    const { error: insertError } = await supabase
+      .from('saved_recipes')
+      .insert(newIds.map((id) => ({ user_id: userId, recipe_id: id })))
+    if (insertError) console.error('Error syncing: ', insertError)
+  }
+
+  localStorage.removeItem(SAVED_KEY)
 }
 
 const logoutUser = async () => {
@@ -80,8 +115,8 @@ const isEmailValid = computed(() => {
           {{ loading ? 'Sending code...' : 'Send Code' }}
         </button>
       </div>
-      <div v-else-if="step === 'code'">
-        <p>Enter the 6 digit code</p>
+      <div v-else-if="step === 'code'" class="flex flex-col gap-2">
+        <p class="text2 text-center">Enter the 6 digit code</p>
         <input type="text" v-model="otp" placeholder="Code from email" />
         <button @click="verifyOtp" :disabled="loading" class="flex justify-center primary">
           {{ loading ? 'Logging in...' : 'Login' }}

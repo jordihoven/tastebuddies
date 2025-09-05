@@ -17,9 +17,9 @@ const title = computed(() => route.meta.title ?? 'Tastebuddies') // use metadata
   <header id="app-header" class="flex justify-between p-2 items-center">
     <div class="header-content">
       <p v-if="!props.showBackButton" class="medium text2">{{ title }}</p>
-      <div class="back-button" v-if="props.showBackButton" @click="router.back()">
+      <button class="back-button" v-if="props.showBackButton" @click="router.back()">
         <ArrowLeft :size="16" color="var(--text2)" />
-      </div>
+      </button>
     </div>
   </header>
 </template>
@@ -36,6 +36,13 @@ header#app-header {
 }
 
 .back-button {
+  width: fit-content;
+  border: none;
+  background-color: transparent;
   padding: 4px; /* so the header remains the same height, whether there's text or an icon */
+}
+
+.back-button:hover {
+  background-color: var(--background2);
 }
 </style>

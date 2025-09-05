@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // @ts-ignore
 import RecipeInfo from './RecipeInfo.vue'
-// todo: feel like this can be done cleaner...
+// #TODO: feel like this can be done cleaner...
 const props = withDefaults(
   defineProps<{
     recipe: Recipe

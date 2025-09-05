@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { supabase } from '@/lib/supabase.ts'
 import RecipeCard from './RecipeCard.vue'
 
@@ -11,6 +11,7 @@ const savedRecipes = ref<Recipe[]>([])
 
 async function fetchSavedRecipes() {
   if (userStore.user) {
+    console.log('user is logged in!')
     // Logged in → fetch from saved_recipes
     const { data, error } = await supabase
       .from('saved_recipes')
@@ -32,6 +33,8 @@ async function fetchSavedRecipes() {
 
     if (!recipesError) savedRecipes.value = recipesData ?? []
   } else {
+    console.log('guest user!')
+
     // Guest → localStorage
     const recipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
     if (!recipeIds.length) return
@@ -42,6 +45,14 @@ async function fetchSavedRecipes() {
 }
 
 onMounted(fetchSavedRecipes)
+
+// watcher needed to re-trigger fetching recipes since the userStore.user object isn't loaded fast enough... #TODO: move logic to store
+watch(
+  () => userStore.user,
+  () => {
+    fetchSavedRecipes()
+  },
+)
 </script>
 
 <template>
