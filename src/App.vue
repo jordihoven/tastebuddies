@@ -19,8 +19,8 @@ const layout = computed(() => ({
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 
-onMounted(() => {
-  userStore.fetchUser()
+onMounted(async () => {
+  await userStore.fetchUser()
 })
 
 useThemeColor()

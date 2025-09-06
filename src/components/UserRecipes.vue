@@ -1,63 +1,21 @@
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { supabase } from '@/lib/supabase.ts'
+import { onMounted, watch } from 'vue'
 import RecipeCard from './RecipeCard.vue'
+import router from '@/router'
 
 import { useUserStore } from '@/stores/user'
-import router from '@/router'
 const userStore = useUserStore()
 
-const SAVED_KEY = 'likedRecipes'
-const savedRecipes = ref<Recipe[]>([])
-
-async function fetchSavedRecipes() {
-  if (userStore.user) {
-    // Logged in → fetch from saved_recipes
-    const { data, error } = await supabase
-      .from('saved_recipes')
-      .select('recipe_id')
-      .eq('user_id', userStore.user.id)
-
-    if (error) {
-      console.error('Error: ', error)
-      return
-    }
-
-    const recipeIds = data.map((d) => d.recipe_id)
-    if (!recipeIds.length) return
-
-    const { data: recipesData, error: recipesError } = await supabase
-      .from('recipes')
-      .select('*')
-      .in('id', recipeIds)
-
-    if (!recipesError) savedRecipes.value = recipesData ?? []
-  } else {
-    // Guest → localStorage
-    const recipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
-    if (!recipeIds.length) return
-
-    const { data, error } = await supabase.from('recipes').select('*').in('id', recipeIds)
-    if (!error) savedRecipes.value = data ?? []
-  }
-}
-
-onMounted(fetchSavedRecipes)
-
-// watcher needed to re-trigger fetching recipes since the userStore.user object isn't loaded fast enough... #TODO: move logic to store
-watch(
-  () => userStore.user,
-  () => {
-    fetchSavedRecipes()
-  },
-)
+onMounted(async () => {
+  userStore.fetchSavedRecipes()
+})
 </script>
 
 <template>
-  <div class="recipes-grid" v-if="savedRecipes.length">
+  <div class="recipes-grid" v-if="userStore.savedRecipes.length">
     <RecipeCard
       class="recipe"
-      v-for="recipe in savedRecipes"
+      v-for="recipe in userStore.savedRecipes"
       @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
       :key="recipe.id"
       :recipe="recipe"
