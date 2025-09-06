@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase.ts'
 
 // @ts-ignore
@@ -39,27 +39,6 @@ async function loadRecipe() {
   recipe.value = data
 }
 
-// load saved recipe ids from localstorage
-const SAVED_KEY = 'likedRecipes'
-const savedRecipes = ref<string[]>(JSON.parse(localStorage.getItem(SAVED_KEY) || '[]'))
-
-async function saveRecipe(recipeId: string) {
-  if (userStore.user) {
-    // logged in user ->
-    const { error } = await supabase
-      .from('saved_recipes')
-      .insert({ user_id: userStore.user.id, recipe_id: recipeId })
-
-    if (error) {
-      console.error('Error saving: ', error)
-    }
-  } else {
-    // guest users ->
-    savedRecipes.value.push(recipeId)
-    localStorage.setItem(SAVED_KEY, JSON.stringify(savedRecipes.value))
-  }
-}
-
 onMounted(loadRecipe)
 </script>
 
@@ -74,7 +53,11 @@ onMounted(loadRecipe)
         :difficulty="recipe.difficulty"
       />
     </section>
-    <button @click="saveRecipe(recipe.id)" class="flex justify-center primary">
+    <button
+      v-if="!userStore.hasSavedRecipe(recipe.id)"
+      @click="userStore.saveRecipe(recipe.id)"
+      class="flex justify-center primary"
+    >
       <Plus :size="16" />
       Save recipe
     </button>

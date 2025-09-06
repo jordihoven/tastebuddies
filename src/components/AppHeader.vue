@@ -11,13 +11,21 @@ const props = defineProps({
 const route = useRoute()
 
 const title = computed(() => route.meta.title ?? 'Tastebuddies') // use metadata from router to get the Title
+
+const goBack = () => {
+  if (router.options.history.state.back) {
+    router.back()
+  } else {
+    router.push('/swipe')
+  }
+}
 </script>
 
 <template>
   <header id="app-header" class="flex justify-between p-2 items-center">
     <div class="header-content">
       <p v-if="!props.showBackButton" class="medium text2">{{ title }}</p>
-      <button class="back-button" v-if="props.showBackButton" @click="router.back()">
+      <button class="back-button" v-if="props.showBackButton" @click="goBack">
         <ArrowLeft :size="16" color="var(--text2)" />
       </button>
     </div>

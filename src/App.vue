@@ -38,7 +38,7 @@ useThemeColor()
 .page-content {
   max-width: 60em;
   margin: 0 auto;
-  padding: var(--xs-spacing);
+  padding: var(--s-spacing) var(--xs-spacing);
   width: 100%;
   display: flex;
   flex-direction: column;

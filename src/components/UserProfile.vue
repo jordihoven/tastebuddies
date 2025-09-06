@@ -108,7 +108,7 @@ const formatUsername = (email: any) => {
 <template>
   <div class="profile-page">
     <div v-if="!userStore.user">
-      <div v-if="step === 'email'" class="flex flex-col gap-2">
+      <div v-if="step === 'email'" class="flex flex-col gap-2 step">
         <p class="text2 text-center">Sign up to save recipes and improve your matches.</p>
         <input type="email" v-model="email" placeholder="Enter email address" />
         <button
@@ -119,12 +119,17 @@ const formatUsername = (email: any) => {
           {{ loading ? 'Sending code...' : 'Send Code' }}
         </button>
       </div>
-      <div v-else-if="step === 'code'" class="flex flex-col gap-2">
-        <p class="text2 text-center">Enter the 6 digit code</p>
+      <div v-else-if="step === 'code'" class="flex flex-col gap-2 step">
+        <p class="text2 text-center">
+          Enter the 6 digit code send to <span class="primary text-base">{{ email }}</span>
+        </p>
         <input type="text" v-model="otp" placeholder="Code from email" />
         <button @click="verifyOtp" :disabled="loading" class="flex justify-center primary">
           {{ loading ? 'Logging in...' : 'Login' }}
         </button>
+        <span class="text-center"
+          >Check your inbox and spam folder — it may take a few minutes to arrive.</span
+        >
       </div>
     </div>
     <div v-else class="flex flex-col gap-2 items-center">
@@ -138,11 +143,10 @@ const formatUsername = (email: any) => {
 </template>
 
 <style scoped>
-.profile-page {
-  max-width: 40em;
+.step {
+  max-width: 25em;
   margin: 0 auto;
 }
-
 .avatar {
   border: var(--border);
   border-radius: 50px;

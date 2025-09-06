@@ -140,3 +140,7 @@ input:focus {
 .text2 {
   color: var(--text2);
 }
+
+.primary {
+  color: var(--primary);
+}

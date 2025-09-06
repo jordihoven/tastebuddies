@@ -59,5 +59,42 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  return { user, savedRecipes, fetchUser, fetchSavedRecipes, setUser, logout }
+  const saveRecipe = async (recipeId: string) => {
+    if (user.value) {
+      // logged in user -> save to SupaBase...
+      const { error } = await supabase
+        .from('saved_recipes')
+        .insert({ user_id: user?.value.id, recipe_id: recipeId })
+
+      if (error) {
+        console.error(error)
+        return
+      }
+    } else {
+      // guest user -> save to LocalStorage...
+      const recipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
+      if (!recipeIds.includes(recipeId)) {
+        recipeIds.push(recipeId)
+        localStorage.setItem(SAVED_KEY, JSON.stringify(recipeIds))
+      }
+    }
+
+    // refresh so savedRecipes stays in sync...
+    await fetchSavedRecipes()
+  }
+
+  const hasSavedRecipe = (recipeId: string) => {
+    return savedRecipes.value.some((r) => r.id === recipeId)
+  }
+
+  return {
+    user,
+    savedRecipes,
+    fetchUser,
+    fetchSavedRecipes,
+    saveRecipe,
+    setUser,
+    logout,
+    hasSavedRecipe,
+  }
 })
