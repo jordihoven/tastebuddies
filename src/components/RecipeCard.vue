@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // @ts-ignore
 import RecipeInfo from './RecipeInfo.vue'
+import LazyImage from './LazyImage.vue'
 // #TODO: feel like this can be done cleaner...
 const props = withDefaults(
   defineProps<{
@@ -16,9 +17,13 @@ const props = withDefaults(
 
 <template>
   <div @click="$emit('select', recipe)" class="recipe-card flex flex-col gap-2">
-    <img v-if="props.recipe.image_url" :src="props.recipe.image_url" alt="recipe image" />
+    <LazyImage
+      v-if="props.recipe.image_url"
+      :src="props.recipe.image_url"
+      :alt="props.recipe.name"
+    />
     <div class="recipe-info flex flex-col gap-[4px]">
-      <p class="medium">{{ props.recipe.name }}</p>
+      <p class="medium clip-text">{{ props.recipe.name }}</p>
       <RecipeInfo
         v-if="
           props.hasRecipeInfo &&
@@ -41,12 +46,5 @@ const props = withDefaults(
   border-radius: var(--radius);
   border: 1px solid var(--stroke);
   box-shadow: var(--box-shadow-card);
-}
-.recipe-card img {
-  border-radius: calc(var(--radius) - var(--xxs-spacing));
-  max-height: 40vh;
-  width: 100%;
-  aspect-ratio: 1/1.5;
-  object-fit: cover;
 }
 </style>

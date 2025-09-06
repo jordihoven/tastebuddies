@@ -1,18 +1,28 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import RecipeCard from './RecipeCard.vue'
 import router from '@/router'
 
 import { useUserStore } from '@/stores/user'
+import { UtensilsCrossed } from 'lucide-vue-next'
+// @ts-ignore
+import LoaderSpinner from './LoaderSpinner.vue'
+import EmptyState from './EmptyState.vue'
+
 const userStore = useUserStore()
 
+const loadingRecipes = ref(true)
+
 onMounted(async () => {
-  userStore.fetchSavedRecipes()
+  loadingRecipes.value = true
+  await userStore.fetchSavedRecipes()
+  loadingRecipes.value = false
 })
 </script>
 
 <template>
-  <div class="recipes-grid" v-if="userStore.savedRecipes.length">
+  <LoaderSpinner v-if="loadingRecipes" />
+  <div class="recipes-grid" v-else-if="userStore.savedRecipes.length">
     <RecipeCard
       class="recipe"
       v-for="recipe in userStore.savedRecipes"
@@ -22,9 +32,12 @@ onMounted(async () => {
       :has-recipe-info="false"
     />
   </div>
-  <div v-else>
-    <p class="text2">Liked recipes will be shown here.</p>
-  </div>
+  <EmptyState
+    v-else
+    :icon="UtensilsCrossed"
+    title="Saved recipes will show here"
+    description="Once you save your first recipe, it will show here. Get swiping!"
+  />
 </template>
 
 <style scoped>

@@ -121,7 +121,7 @@ const formatUsername = (email: any) => {
       </div>
       <div v-else-if="step === 'code'" class="flex flex-col gap-2 step">
         <p class="text2 text-center">
-          Enter the 6 digit code send to <span class="primary text-base">{{ email }}</span>
+          Enter the 6 digit code send to <span class="primary mail-check-text">{{ email }}</span>
         </p>
         <input type="text" v-model="otp" placeholder="Code from email" />
         <button @click="verifyOtp" :disabled="loading" class="flex justify-center primary">
@@ -159,5 +159,9 @@ const formatUsername = (email: any) => {
   position: relative;
   height: 3rem;
   width: 3rem;
+}
+
+.mail-check-text {
+  font-size: var(--1rem);
 }
 </style>

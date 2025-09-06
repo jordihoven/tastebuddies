@@ -144,3 +144,10 @@ input:focus {
 .primary {
   color: var(--primary);
 }
+
+.tile {
+  background-color: var(--background2);
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius);
+  padding: var(--xs-spacing);
+}

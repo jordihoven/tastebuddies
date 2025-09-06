@@ -5,6 +5,9 @@ import { supabase } from '@/lib/supabase.ts'
 
 // @ts-ignore
 import RecipeInfo from './RecipeInfo.vue'
+import LazyImage from './LazyImage.vue'
+// @ts-ignore
+import LoaderSpinner from './LoaderSpinner.vue'
 
 import { Plus } from 'lucide-vue-next'
 
@@ -44,7 +47,7 @@ onMounted(loadRecipe)
 
 <template>
   <div v-if="recipe" class="flex flex-col gap-2">
-    <img v-if="recipe.image_url" class="recipe-image" :src="recipe.image_url" alt="liked recipe" />
+    <LazyImage v-if="recipe.image_url" :src="recipe.image_url" :alt="recipe.name" />
     <section>
       <h3>{{ recipe.name }}</h3>
       <RecipeInfo
@@ -76,7 +79,7 @@ onMounted(loadRecipe)
       </div>
     </section>
   </div>
-  <div v-else>Loading recipe...</div>
+  <LoaderSpinner v-else />
 </template>
 
 <style scoped>

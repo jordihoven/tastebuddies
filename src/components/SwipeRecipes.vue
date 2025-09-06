@@ -7,11 +7,19 @@ import { supabase } from '@/lib/supabase.ts'
 // components
 import RecipeCard from './RecipeCard.vue'
 
+import EmptyState from './EmptyState.vue'
+// @ts-ignore
+import LoaderSpinner from './LoaderSpinner.vue'
+
+const loadingRecipes = ref(true)
+
 const recipes = ref<Recipe[]>([]) // storing all recipes, fetched from supabase...
 const currentRecipe = computed(() => recipes.value[0] ?? null) // the current recipe to be swiped...
 
 // get recipes from supabase...
 async function loadRecipes() {
+  loadingRecipes.value = true // loading...
+
   const { data, error } = await supabase.from('recipes').select('*').limit(10)
 
   if (error) {
@@ -20,6 +28,8 @@ async function loadRecipes() {
   }
 
   recipes.value = shuffle(data ?? []) // store the fetched recipes (or clear recipes if nothing is fetched?)
+
+  loadingRecipes.value = false // done loading..
 }
 
 // Fisher-Yates shuffle...
@@ -48,14 +58,22 @@ const dislikeRecipe = () => {
 
 <template>
   <div class="flex flex-col flex-1 justify-center">
-    <section class="flex flex-col gap-2">
-      <RecipeCard v-if="currentRecipe" :recipe="currentRecipe" :hasRecipeInfo="true" />
-      <div v-else><p class="medium text-2 text-center">No more recipes to show...</p></div>
-    </section>
-    <section class="recipe-actions flex gap-2 justify-center mt-4">
-      <button @click="dislikeRecipe" class="dislike"><HeartOff color="var(--danger)" /></button>
-      <button @click="likeRecipe" class="like"><Heart color="var(--primary)" /></button>
-    </section>
+    <LoaderSpinner v-if="loadingRecipes" />
+    <div v-else-if="currentRecipe">
+      <section class="flex flex-col gap-2">
+        <RecipeCard :recipe="currentRecipe" :hasRecipeInfo="true" />
+      </section>
+      <section class="recipe-actions flex gap-2 justify-center mt-4">
+        <button @click="dislikeRecipe" class="dislike"><HeartOff color="var(--danger)" /></button>
+        <button @click="likeRecipe" class="like"><Heart color="var(--primary)" /></button>
+      </section>
+    </div>
+    <EmptyState
+      v-else
+      :icon="Heart"
+      title="No more recipes to show"
+      description="You liked/disliked the entire deck! Resfresh to get a clean deck."
+    />
   </div>
 </template>
 
