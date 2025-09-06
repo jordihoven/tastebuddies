@@ -34,5 +34,6 @@ const loaded = ref(false)
   width: 100%;
   aspect-ratio: 1/1.5;
   object-fit: cover;
+  pointer-events: none; /* #TODO to prevent draggin the image, if safe its fine, otherwise add it only to the swipe recipe */
 }
 </style>

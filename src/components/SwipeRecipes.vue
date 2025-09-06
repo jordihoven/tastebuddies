@@ -6,7 +6,8 @@ import { HeartOff, Heart } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase.ts'
 // components
 import RecipeCard from './RecipeCard.vue'
-
+// @ts-ignore
+import SwipeCard from './SwipeCard.vue'
 import EmptyState from './EmptyState.vue'
 // @ts-ignore
 import LoaderSpinner from './LoaderSpinner.vue'
@@ -57,11 +58,13 @@ const dislikeRecipe = () => {
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 justify-center">
+  <div class="flex flex-col flex-1 justify-center overflow-x-hidden">
     <LoaderSpinner v-if="loadingRecipes" />
     <div v-else-if="currentRecipe">
       <section class="flex flex-col gap-2">
-        <RecipeCard :recipe="currentRecipe" :hasRecipeInfo="true" />
+        <SwipeCard @like="likeRecipe" @dislike="dislikeRecipe">
+          <RecipeCard :recipe="currentRecipe" :hasRecipeInfo="true" />
+        </SwipeCard>
       </section>
       <section class="recipe-actions flex gap-2 justify-center mt-4">
         <button @click="dislikeRecipe" class="dislike"><HeartOff color="var(--danger)" /></button>
