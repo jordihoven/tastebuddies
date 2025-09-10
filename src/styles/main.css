@@ -88,7 +88,8 @@ button.primary {
   border: transparent;
 }
 
-input {
+input,
+select {
   background-color: var(--background2);
   border-radius: var(--radius-sm);
   border: var(--border);

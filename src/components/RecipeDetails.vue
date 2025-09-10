@@ -64,7 +64,7 @@ onMounted(loadRecipe)
       <Plus :size="16" />
       Save recipe
     </button>
-    <section class="flex flex-col gap-1">
+    <section class="flex flex-col gap-1" v-if="recipe.ingredients">
       <span class="medium">Ingredients</span>
       <div class="ingredients">
         <div

@@ -4,6 +4,7 @@ import UserProfile from '@/components/UserProfile.vue'
 import UserRecipes from '@/components/UserRecipes.vue'
 import SwipeRecipes from '@/components/SwipeRecipes.vue'
 import RecipeDetails from '@/components/RecipeDetails.vue'
+import AddRecipe from '@/components/AddRecipe.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,6 +13,11 @@ const router = createRouter({
     { path: '/profile', component: UserProfile, meta: { title: 'Profile' } },
     { path: '/recipes', component: UserRecipes, meta: { title: 'Recipes' } },
     { path: '/swipe', component: SwipeRecipes, meta: { title: 'Swipe' } },
+    {
+      path: '/addrecipe',
+      component: AddRecipe,
+      meta: { title: 'Add Recipe', hideTabBar: true, showBackButton: true }, // #TODO: should also be able to show breadcrumb + back arrow...
+    },
     {
       path: '/recipe/:id',
       component: RecipeDetails,
