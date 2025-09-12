@@ -34,6 +34,7 @@ onMounted(async () => {
   </div>
   <EmptyState
     v-else
+    class="justify-center h-full"
     :icon="UtensilsCrossed"
     title="Saved recipes will show here"
     description="Once you save your first recipe, it will show here. Get swiping!"

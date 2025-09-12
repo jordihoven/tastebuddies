@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase'
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-import { Plus, X } from 'lucide-vue-next'
+import { ImagePlus, X } from 'lucide-vue-next'
 
 import { useUserStore } from '@/stores/user'
 import LazyImage from './LazyImage.vue'
@@ -13,9 +13,9 @@ const userStore = useUserStore()
 const newRecipe = ref<Partial<Recipe>>({
   name: '',
   image_url: '',
-  duration: 0,
+  duration: undefined,
   difficulty: '',
-  calories: 0,
+  calories: undefined,
 })
 
 const ingredients = ref<{ name: string; amount: string }[]>([])
@@ -80,23 +80,28 @@ const addRecipe = async () => {
   }
 
   // insert recipe into Supabase
-  const { error: insertError } = await supabase.from('recipes').insert([
-    {
-      ...newRecipe.value,
-      image_url: imageUrl,
-      ingredients: ingredients.value,
-      created_by: userStore.user.id,
-    },
-  ])
+  const { data: insertedData, error: insertError } = await supabase
+    .from('recipes')
+    .insert([
+      {
+        ...newRecipe.value,
+        image_url: imageUrl,
+        ingredients: ingredients.value,
+        created_by: userStore.user.id,
+      },
+    ])
+    .select() // returns the selected row...
 
   if (insertError) {
     error.value = insertError.message
   } else {
+    const newRecipeId = insertedData[0].id
+
     newRecipe.value = { name: '', image_url: '', duration: 0, difficulty: '', calories: 0 } // clear values...
     ingredients.value = []
     file.value = null
-    // #TODO inform the user that the recipe has been added to the deck!
-    router.push('/') // back to deck
+
+    router.push(`/recipe/${newRecipeId}`) // route user to the new recipe...
   }
 
   loading.value = false
@@ -104,8 +109,8 @@ const addRecipe = async () => {
 </script>
 
 <template>
-  <div id="add-recipe">
-    <form @submit.prevent="addRecipe" class="flex flex-col gap-2">
+  <div id="add-recipe" class="flex flex-col h-full">
+    <form @submit.prevent="addRecipe" id="addRecipeForm" class="flex flex-col gap-2 flex-1">
       <!-- Recipe name -->
       <input
         v-model="newRecipe.name"
@@ -125,13 +130,13 @@ const addRecipe = async () => {
           </div>
 
           <div v-else class="dropzone-content flex flex-col items-center">
-            <Plus :size="16" class="text2 opacity-75" />
+            <ImagePlus :size="20" class="text2 opacity-75" />
             <span class="medium opacity-75">Add an image</span>
           </div>
         </label>
       </div>
 
-      <!-- Duration -->
+      <label>Duration</label>
       <input
         v-model.number="newRecipe.duration"
         type="number"
@@ -139,49 +144,60 @@ const addRecipe = async () => {
         class="w-full border rounded p-2"
       />
 
-      <!-- Difficulty -->
-      <select v-model="newRecipe.difficulty">
+      <label>Difficulty</label>
+      <select v-model="newRecipe.difficulty" :class="{ placeholder: !newRecipe.difficulty }">
         <option disabled value="">Difficulty...</option>
         <option>Easy</option>
         <option>Medium</option>
         <option>Hard</option>
       </select>
 
-      <!-- Calories -->
-      <input v-model.number="newRecipe.calories" type="number" placeholder="Calories..." />
+      <label>Calories</label>
+      <input v-model.number="newRecipe.calories" type="number" placeholder="Calories in kcal..." />
 
-      <!-- Ingredients -->
-      <div class="ingredients flex flex-col gap-2">
-        <label class="medium opacity-75">Ingredients</label>
-        <div v-for="(ingredient, index) in ingredients" :key="index" class="flex gap-2">
-          <input
-            v-model="ingredient.name"
-            type="text"
-            placeholder="Ingredient name..."
-            class="flex-1"
-          />
-          <input v-model="ingredient.amount" class="flex-1" type="text" placeholder="Amount..." />
-          <button @click="removeIngredient(index)">
-            <X :size="16" class="text2" />
+      <div class="flex flex-col gap-2">
+        <label>Ingredients</label>
+        <div class="tile ingredients flex flex-col gap-2">
+          <div
+            v-for="(ingredient, index) in ingredients"
+            :key="index"
+            class="flex gap-2 items-center"
+          >
+            <input
+              v-model="ingredient.name"
+              type="text"
+              placeholder="Ingredient name..."
+              class="flex-1 w-full"
+            />
+            <input
+              v-model="ingredient.amount"
+              class="flex-1 w-full"
+              type="text"
+              placeholder="Amount..."
+            />
+            <button @click="removeIngredient(index)" class="remove-button">
+              <X :size="16" class="text2" />
+            </button>
+          </div>
+          <button type="button" class="justify-center text2" @click="addIngredient">
+            Add ingredient
           </button>
         </div>
-        <button type="button" class="w-fit" @click="addIngredient">Add ingredient</button>
       </div>
-
-      <!-- Submit -->
-      <button
-        type="submit"
-        class="primary flex justify-center"
-        :disabled="loading || !userStore.user"
-      >
-        {{ loading ? 'Adding to deck...' : 'Add to deck' }}
-      </button>
     </form>
 
+    <!-- Submit -->
+    <button
+      type="submit"
+      class="primary flex justify-center mt-4"
+      form="addRecipeForm"
+      :disabled="loading || !userStore.user"
+    >
+      {{ loading ? 'Adding to deck...' : 'Add to deck' }}
+    </button>
     <span class="text-center w-full block pt-2 opacity-50"
       >Your recipe will be visible to all users</span
     >
-
     <!-- Error message -->
     <span v-if="error" class="text-red-500 mt-4">{{ error }}</span>
   </div>
@@ -195,17 +211,33 @@ select {
 }
 
 .image-dropzone {
-  background-color: var(--background3);
   min-height: 7em;
   transition: var(--transition);
 }
 
-.image-dropzone:hover {
-  background-color: var(--background2);
+.image-dropzone:hover,
+select:hover {
+  border: 1px solid var(--primary);
+  box-shadow: 0px 0px 4px var(--primary);
   cursor: pointer;
 }
 
 :deep(.lazy-image img) {
   aspect-ratio: unset;
+}
+
+/* mute the select placeholder color... */
+select.placeholder {
+  color: color-mix(in srgb, var(--text2) 30%, gray 30%);
+}
+
+label {
+  font-size: var(--span);
+  color: var(--text2);
+}
+
+.ingredients input,
+.ingredients .remove-button {
+  border: none;
 }
 </style>

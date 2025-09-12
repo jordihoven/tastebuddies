@@ -97,6 +97,9 @@ select {
   transition: var(--transition);
   font-size: var(--span);
 }
+select {
+  padding: var(--xs-spacing);
+}
 input:hover,
 input:active,
 input:focus {
@@ -140,6 +143,10 @@ input:focus {
 
 .text2 {
   color: var(--text2);
+}
+
+.danger {
+  color: var(--danger);
 }
 
 .primary {

@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue'
 import router from '@/router'
 // icons
-import { HeartOff, Heart } from 'lucide-vue-next'
+import { HeartOff, Heart, GalleryHorizontal } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase.ts'
 // components
 import RecipeCard from './RecipeCard.vue'
@@ -73,7 +73,7 @@ const dislikeRecipe = () => {
     </div>
     <EmptyState
       v-else
-      :icon="Heart"
+      :icon="GalleryHorizontal"
       title="No more recipes to show"
       description="You liked/disliked the entire deck! Resfresh to get a clean deck."
     />
