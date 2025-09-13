@@ -7,10 +7,12 @@ export const useUserStore = defineStore('user', () => {
   const user = ref<User | null>(null)
   const savedRecipes = ref<Recipe[]>([]) // this will be populated by LocalStorage for guest users... #TODO: decide whether that makes sense
   const SAVED_KEY = 'likedRecipes'
+  const myRecipes = ref<Recipe[]>([])
 
   // watcher needed to re-trigger fetching recipes since the userStore.user object isn't loaded fast enough... #TODO: move logic to store
   watch(user, () => {
     fetchSavedRecipes()
+    fetchMyRecipes()
   })
 
   const fetchUser = async () => {
@@ -59,6 +61,29 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  const fetchMyRecipes = async () => {
+    console.log('fetching created recipes of this user...')
+
+    if (!user.value) {
+      // if guest user...
+      myRecipes.value = []
+      return
+    }
+
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .eq('created_by', user.value.id)
+
+    if (error) {
+      console.error('Error fetching user recipes: ', error)
+      myRecipes.value = []
+      return
+    }
+
+    myRecipes.value = data ?? [] // populate myRecipes if supabase returned any, otherwise set it to an empty array...
+  }
+
   const saveRecipe = async (recipeId: string) => {
     if (user.value) {
       // logged in user -> save to SupaBase...
@@ -92,6 +117,8 @@ export const useUserStore = defineStore('user', () => {
     savedRecipes,
     fetchUser,
     fetchSavedRecipes,
+    myRecipes,
+    fetchMyRecipes,
     saveRecipe,
     setUser,
     logout,

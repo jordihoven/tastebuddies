@@ -60,6 +60,7 @@ onUnmounted(clearHeader)
     <LazyImage v-if="recipe.image_url" :src="recipe.image_url" :alt="recipe.name" />
     <section>
       <h3>{{ recipe.name }}</h3>
+      <p class="text2" v-if="recipe?.created_by_name">by {{ recipe.created_by_name }}</p>
       <RecipeInfo
         :duration="recipe.duration"
         :calories="recipe.calories"

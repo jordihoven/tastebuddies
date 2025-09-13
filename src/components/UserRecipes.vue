@@ -22,16 +22,38 @@ onMounted(async () => {
 
 <template>
   <LoaderSpinner v-if="loadingRecipes" />
-  <div class="recipes-grid" v-else-if="userStore.savedRecipes.length">
-    <RecipeCard
-      class="recipe"
-      v-for="recipe in userStore.savedRecipes"
-      @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
-      :key="recipe.id"
-      :recipe="recipe"
-      :has-recipe-info="false"
-    />
+  <div class="grids" v-else-if="userStore.savedRecipes.length || userStore.myRecipes.length">
+    <section v-if="userStore.savedRecipes.length" class="mb-4">
+      <p class="medium text2">Saved Recipes</p>
+      <div class="recipes-grid">
+        <RecipeCard
+          class="recipe"
+          v-for="recipe in userStore.savedRecipes"
+          @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
+          :key="recipe.id"
+          :recipe="recipe"
+          :has-recipe-info="false"
+          :has-user-info="false"
+        />
+      </div>
+    </section>
+
+    <section v-if="userStore.myRecipes.length" class="mb-4">
+      <p class="medium text2">My Recipes</p>
+      <div class="recipes-grid">
+        <RecipeCard
+          class="recipe"
+          v-for="recipe in userStore.myRecipes"
+          @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
+          :key="recipe.id"
+          :recipe="recipe"
+          :has-recipe-info="false"
+          :has-user-info="false"
+        />
+      </div>
+    </section>
   </div>
+
   <EmptyState
     v-else
     class="justify-center h-full"

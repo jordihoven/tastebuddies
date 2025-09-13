@@ -6,11 +6,12 @@ import LazyImage from './LazyImage.vue'
 const props = withDefaults(
   defineProps<{
     recipe: Recipe
-    hasRecipeInfo: boolean
+    hasRecipeInfo?: boolean
+    hasUserInfo?: boolean
   }>(),
   {
     hasRecipeInfo: true,
-    // make this not required, so that not giving it means it's shown...
+    hasUserInfo: true,
   },
 )
 </script>
@@ -23,6 +24,9 @@ const props = withDefaults(
       :alt="props.recipe.name"
     />
     <div class="recipe-info flex flex-col gap-[4px]">
+      <p v-if="props.recipe.created_by_name && props.hasUserInfo" class="text2">
+        {{ props.recipe.created_by_name }}
+      </p>
       <p class="medium clip-text">{{ props.recipe.name }}</p>
       <RecipeInfo
         v-if="

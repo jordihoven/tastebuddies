@@ -123,7 +123,13 @@ const formatUsername = (email: any) => {
         <p class="text2 text-center">
           Enter the 6 digit code send to <span class="primary mail-check-text">{{ email }}</span>
         </p>
-        <input type="text" v-model="otp" placeholder="Code from email" />
+        <input
+          type="text"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          v-model="otp"
+          placeholder="Code from email"
+        />
         <button @click="verifyOtp" :disabled="loading" class="flex justify-center primary">
           {{ loading ? 'Logging in...' : 'Login' }}
         </button>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import router from '@/router'
 // icons
 import { HeartOff, Heart, GalleryHorizontal, Plus } from 'lucide-vue-next'
@@ -52,17 +52,22 @@ function shuffle(array: any) {
   return copy
 }
 
-onMounted(() => {
-  loadRecipes()
-  if (userStore.user) {
-    setHeader({
-      rightAction: {
-        icon: Plus,
-        onClick: goToAddRecipe,
-      },
-    })
-  }
-})
+onMounted(loadRecipes)
+
+watch(
+  () => userStore.user,
+  (user) => {
+    if (user) {
+      setHeader({
+        rightAction: {
+          icon: Plus,
+          onClick: goToAddRecipe,
+        },
+      })
+    }
+  },
+  { immediate: true }, // also run immediately if user is already set
+)
 
 onUnmounted(clearHeader)
 

@@ -84,6 +84,8 @@ const addRecipe = async () => {
     imageUrl = publicData?.publicUrl ?? ''
   }
 
+  const created_by_name = userStore.user?.email?.split('@')[0] || 'Anon'
+
   // insert recipe into Supabase
   const { data: insertedData, error: insertError } = await supabase
     .from('recipes')
@@ -93,6 +95,7 @@ const addRecipe = async () => {
         image_url: imageUrl,
         ingredients: ingredients.value,
         created_by: userStore.user.id,
+        created_by_name,
       },
     ])
     .select() // returns the selected row...
@@ -141,11 +144,9 @@ onUnmounted(clearHeader)
       <div>
         <label class="image-dropzone tile flex flex-col justify-center items-center">
           <input type="file" accept="image/*" @change="handleFileChange" class="hidden" />
-
           <div v-if="previewUrl">
             <LazyImage :src="previewUrl" alt="Preview of your uploaded recipe image" />
           </div>
-
           <div v-else class="dropzone-content flex flex-col items-center">
             <ImagePlus :size="20" class="text2 opacity-75" />
             <span class="medium opacity-75">Add an image</span>
