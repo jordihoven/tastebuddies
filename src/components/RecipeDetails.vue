@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase.ts'
 
@@ -10,6 +10,9 @@ import LazyImage from './LazyImage.vue'
 import LoaderSpinner from './LoaderSpinner.vue'
 
 import { Plus } from 'lucide-vue-next'
+
+import { useHeader } from '@/composables/useHeader'
+const { setHeader, clearHeader } = useHeader()
 
 const route = useRoute() // current route object, with path, params, query, name...
 const recipe = ref<RecipeDetails | null>(null)
@@ -42,7 +45,14 @@ async function loadRecipe() {
   recipe.value = data
 }
 
-onMounted(loadRecipe)
+onMounted(() => {
+  loadRecipe()
+  setHeader({
+    leftAction: 'back',
+  })
+})
+
+onUnmounted(clearHeader)
 </script>
 
 <template>
@@ -64,7 +74,7 @@ onMounted(loadRecipe)
       <Plus :size="16" />
       Save recipe
     </button>
-    <section class="flex flex-col gap-1" v-if="recipe.ingredients">
+    <section class="flex flex-col gap-1" v-if="recipe.ingredients.length > 0">
       <span class="medium">Ingredients</span>
       <div class="ingredients">
         <div

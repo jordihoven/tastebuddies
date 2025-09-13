@@ -1,14 +1,19 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { supabase } from '@/lib/supabase'
+
 import { useRouter } from 'vue-router'
 const router = useRouter()
 
-import { ImagePlus, X } from 'lucide-vue-next'
-
 import { useUserStore } from '@/stores/user'
-import LazyImage from './LazyImage.vue'
 const userStore = useUserStore()
+
+import { ImagePlus, X, Plus } from 'lucide-vue-next'
+
+import LazyImage from './LazyImage.vue'
+
+import { useHeader } from '@/composables/useHeader'
+const { setHeader, clearHeader } = useHeader()
 
 const newRecipe = ref<Partial<Recipe>>({
   name: '',
@@ -106,11 +111,23 @@ const addRecipe = async () => {
 
   loading.value = false
 }
+
+onMounted(() => {
+  setHeader({
+    leftAction: 'back',
+    rightAction: {
+      icon: Plus,
+      onClick: addRecipe,
+    },
+  })
+})
+
+onUnmounted(clearHeader)
 </script>
 
 <template>
   <div id="add-recipe" class="flex flex-col h-full">
-    <form @submit.prevent="addRecipe" id="addRecipeForm" class="flex flex-col gap-2 flex-1">
+    <form @submit.prevent="addRecipe" class="flex flex-col gap-2 flex-1">
       <!-- Recipe name -->
       <input
         v-model="newRecipe.name"
@@ -186,15 +203,6 @@ const addRecipe = async () => {
       </div>
     </form>
 
-    <!-- Submit -->
-    <button
-      type="submit"
-      class="primary flex justify-center mt-4"
-      form="addRecipeForm"
-      :disabled="loading || !userStore.user"
-    >
-      {{ loading ? 'Adding to deck...' : 'Add to deck' }}
-    </button>
     <span class="text-center w-full block pt-2 opacity-50"
       >Your recipe will be visible to all users</span
     >

@@ -4,9 +4,9 @@ import { User, GalleryHorizontal, UtensilsCrossed } from 'lucide-vue-next'
 
 <template>
   <nav class="flex justify-center gap-8">
-    <router-link to="/profile" active-class="active"><User size="20" /></router-link>
-    <router-link to="/swipe" active-class="active"><GalleryHorizontal size="20" /></router-link>
-    <router-link to="/recipes" active-class="active"><utensils-crossed size="20" /></router-link>
+    <router-link to="/profile" active-class="active"><User size="24" /></router-link>
+    <router-link to="/swipe" active-class="active"><GalleryHorizontal size="24" /></router-link>
+    <router-link to="/recipes" active-class="active"><utensils-crossed size="24" /></router-link>
   </nav>
 </template>
 

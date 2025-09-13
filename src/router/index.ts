@@ -16,12 +16,12 @@ const router = createRouter({
     {
       path: '/addrecipe',
       component: AddRecipe,
-      meta: { title: 'Add Recipe', hideTabBar: true, showBackButton: true }, // #TODO: should also be able to show breadcrumb + back arrow...
+      meta: { title: 'Add Recipe', hideTabBar: true },
     },
     {
       path: '/recipe/:id',
       component: RecipeDetails,
-      meta: { title: 'Recipe', showBackButton: true, hideTabBar: true },
+      meta: { title: 'Recipe', hideTabBar: true },
     },
   ],
 })

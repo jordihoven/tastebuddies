@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import router from '@/router'
 // icons
-import { HeartOff, Heart, GalleryHorizontal } from 'lucide-vue-next'
+import { HeartOff, Heart, GalleryHorizontal, Plus } from 'lucide-vue-next'
 import { supabase } from '@/lib/supabase.ts'
 // components
 import RecipeCard from './RecipeCard.vue'
@@ -11,6 +11,15 @@ import SwipeCard from './SwipeCard.vue'
 import EmptyState from './EmptyState.vue'
 // @ts-ignore
 import LoaderSpinner from './LoaderSpinner.vue'
+
+import { useHeader } from '@/composables/useHeader'
+import { useUserStore } from '@/stores/user'
+const userStore = useUserStore()
+const { setHeader, clearHeader } = useHeader()
+
+const goToAddRecipe = () => {
+  router.push('/addrecipe')
+}
 
 const loadingRecipes = ref(true)
 
@@ -43,7 +52,19 @@ function shuffle(array: any) {
   return copy
 }
 
-onMounted(loadRecipes)
+onMounted(() => {
+  loadRecipes()
+  if (userStore.user) {
+    setHeader({
+      rightAction: {
+        icon: Plus,
+        onClick: goToAddRecipe,
+      },
+    })
+  }
+})
+
+onUnmounted(clearHeader)
 
 const likeRecipe = async () => {
   // remove the liked recipe from the recipes deck...

@@ -12,7 +12,6 @@ const route = useRoute()
 
 // layout related info, based on route...
 const layout = computed(() => ({
-  showBackButton: route.meta.showBackButton === true,
   hideTabBar: route.meta.hideTabBar === true,
 }))
 
@@ -27,7 +26,7 @@ useThemeColor()
 </script>
 
 <template>
-  <AppHeader :show-back-button="layout.showBackButton" />
+  <AppHeader />
   <main class="page-content">
     <router-view></router-view>
   </main>
