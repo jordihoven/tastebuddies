@@ -9,7 +9,8 @@ export const useUserStore = defineStore('user', () => {
   const SAVED_KEY = 'likedRecipes'
   const myRecipes = ref<Recipe[]>([])
 
-  // watcher needed to re-trigger fetching recipes since the userStore.user object isn't loaded fast enough... #TODO: move logic to store
+  // watcher needed to re-trigger fetching recipes since the userStore.user object isn't loaded fast enough...
+  // #TODO: these methods are now ran each time user changes?
   watch(user, () => {
     fetchSavedRecipes()
     fetchMyRecipes()
@@ -62,8 +63,6 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const fetchMyRecipes = async () => {
-    console.log('fetching created recipes of this user...')
-
     if (!user.value) {
       // if guest user...
       myRecipes.value = []

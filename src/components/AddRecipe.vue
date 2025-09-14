@@ -8,7 +8,7 @@ const router = useRouter()
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 
-import { ImagePlus, X, Plus } from 'lucide-vue-next'
+import { ImagePlus, X, Check } from 'lucide-vue-next'
 
 import LazyImage from './LazyImage.vue'
 
@@ -119,7 +119,7 @@ onMounted(() => {
   setHeader({
     leftAction: 'back',
     rightAction: {
-      icon: Plus,
+      icon: Check,
       onClick: addRecipe,
     },
   })

@@ -24,13 +24,17 @@ const goToAddRecipe = () => {
 const loadingRecipes = ref(true)
 
 const recipes = ref<Recipe[]>([]) // storing all recipes, fetched from supabase...
+// storing likes / disliked by user...
+const likedRecipes = ref<Recipe[]>([])
+const dislikedRecipes = ref<Recipe[]>([])
+
 const currentRecipe = computed(() => recipes.value[0] ?? null) // the current recipe to be swiped...
 
 // get recipes from supabase...
 async function loadRecipes() {
   loadingRecipes.value = true // loading...
 
-  const { data, error } = await supabase.from('recipes').select('*').limit(10)
+  const { data, error } = await supabase.from('recipes').select('*')
 
   if (error) {
     console.error(error)
@@ -44,6 +48,7 @@ async function loadRecipes() {
 
 // Fisher-Yates shuffle...
 function shuffle(array: any) {
+  // any because supabase does not return Recipe type...
   const copy = [...array]
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))
@@ -52,22 +57,18 @@ function shuffle(array: any) {
   return copy
 }
 
-onMounted(loadRecipes)
-
-watch(
-  () => userStore.user,
-  (user) => {
-    if (user) {
-      setHeader({
-        rightAction: {
-          icon: Plus,
-          onClick: goToAddRecipe,
-        },
-      })
-    }
-  },
-  { immediate: true }, // also run immediately if user is already set
-)
+onMounted(async () => {
+  loadRecipes()
+  await userStore.fetchUser()
+  if (userStore.user) {
+    setHeader({
+      rightAction: {
+        icon: Plus,
+        onClick: goToAddRecipe,
+      },
+    })
+  }
+})
 
 onUnmounted(clearHeader)
 
@@ -75,11 +76,13 @@ const likeRecipe = async () => {
   // remove the liked recipe from the recipes deck...
   const recipe = recipes.value.shift()
   if (!recipe) return
-  // navigate to the recipe details page...
-  router.push({ path: `/recipe/${recipe.id}` })
+  likedRecipes.value.push(recipe) // add recipe to likedRecipe array...
+  router.push({ path: `/recipe/${recipe.id}` }) // navigate to the recipe details page...
 }
 const dislikeRecipe = () => {
-  recipes.value.shift() // remove the recipe from the array...
+  const recipe = recipes.value.shift() // remove the recipe from the array...
+  if (!recipe) return
+  dislikedRecipes.value.push(recipe)
 }
 </script>
 
