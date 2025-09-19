@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase.ts'
 
@@ -9,7 +9,7 @@ import LazyImage from './LazyImage.vue'
 // @ts-ignore
 import LoaderSpinner from './LoaderSpinner.vue'
 
-import { Plus } from 'lucide-vue-next'
+import { Plus, Edit } from 'lucide-vue-next'
 
 import { useHeader } from '@/composables/useHeader'
 const { setHeader, clearHeader } = useHeader()
@@ -18,6 +18,7 @@ const route = useRoute() // current route object, with path, params, query, name
 const recipe = ref<RecipeDetails | null>(null)
 
 import { useUserStore } from '@/stores/user'
+import router from '@/router'
 const userStore = useUserStore()
 
 interface Ingredient {
@@ -45,11 +46,33 @@ async function loadRecipe() {
   recipe.value = data
 }
 
-onMounted(() => {
-  loadRecipe()
-  setHeader({
-    leftAction: 'back',
+const goToEditRecipe = () => {
+  // go to edit recipe with the recipeId...
+  if (!recipe.value) return
+  router.push({
+    path: '/addrecipe',
+    query: { editId: recipe.value.id }, // send a editIt on router push to the addRecipes page, so it can fetch that recipe and populate the fields...
   })
+}
+
+// detecting whether the current user is the owner of the recipe...
+const isOwner = computed(() => {
+  return recipe.value?.created_by === userStore.user?.id
+})
+
+onMounted(async () => {
+  await loadRecipe()
+  if (isOwner.value) {
+    setHeader({
+      leftAction: 'back',
+      rightAction: {
+        icon: Edit,
+        onClick: goToEditRecipe,
+      },
+    })
+  } else {
+    setHeader({ leftAction: 'back' })
+  }
 })
 
 onUnmounted(clearHeader)

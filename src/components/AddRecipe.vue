@@ -2,14 +2,14 @@
 import { onMounted, onUnmounted, ref } from 'vue'
 import { supabase } from '@/lib/supabase'
 
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 const router = useRouter()
+const route = useRoute()
 
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 
 import { ImagePlus, X, Check } from 'lucide-vue-next'
-
 import LazyImage from './LazyImage.vue'
 
 import { useHeader } from '@/composables/useHeader'
@@ -21,15 +21,34 @@ const newRecipe = ref<Partial<Recipe>>({
   duration: undefined,
   difficulty: '',
   calories: undefined,
+  ingredients: [],
 })
 
-const ingredients = ref<{ name: string; amount: string }[]>([])
+// getting recipe id from route...
+const editId = route.query.editId as string | undefined
+
+// fetching the recipe to be edited from supabase on id...
+const fetchRecipeFromId = async (recipeIdFromRouter: string) => {
+  const { data: recipeData, error } = await supabase
+    .from('recipes')
+    .select('*')
+    .eq('id', recipeIdFromRouter)
+    .single() // fetch the recipe to edit...
+
+  if (error || !recipeData) {
+    console.error('Failed to fetch recipe from id for edit: ', error)
+  }
+
+  newRecipe.value = { ...recipeData }
+  previewUrl.value = recipeData.image_url || null
+}
+
 const addIngredient = () => {
-  ingredients.value.push({ name: '', amount: '' })
+  newRecipe.value.ingredients?.push({ name: '', amount: '' })
 }
 
 const removeIngredient = (index: number) => {
-  ingredients.value.splice(index, 1)
+  newRecipe.value.ingredients?.splice(index, 1)
 }
 
 const file = ref<File | null>(null)
@@ -43,6 +62,7 @@ const handleFileChange = (e: Event) => {
     const reader = new FileReader()
     reader.onload = () => {
       previewUrl.value = reader.result as string
+      newRecipe.value.image_url = reader.result as string // updating the image_url for vuedevtools...
     }
     reader.readAsDataURL(file.value)
   }
@@ -54,7 +74,7 @@ const error = ref<string | null>(null)
 const addRecipe = async () => {
   // check whether user is logged in...
   if (!userStore.user) {
-    error.value = 'You must be logged in to add a recipe'
+    error.value = 'You must be logged in to add a recipe...'
     loading.value = false
     return
   }
@@ -66,15 +86,14 @@ const addRecipe = async () => {
   if (file.value) {
     const fileExt = file.value.name.split('.').pop()
     const fileName = `${userStore.user?.id}_${Date.now()}.${fileExt}`
-    console.log(fileName)
 
     // upload file to supabase bucket...
-    const { error: urlError } = await supabase.storage
+    const { error: uploadError } = await supabase.storage
       .from('recipe_images')
       .upload(fileName, file.value)
 
-    if (urlError) {
-      error.value = urlError.message
+    if (uploadError) {
+      error.value = uploadError.message
       loading.value = false
       return
     }
@@ -82,40 +101,66 @@ const addRecipe = async () => {
     // get public url...
     const { data: publicData } = supabase.storage.from('recipe_images').getPublicUrl(fileName)
     imageUrl = publicData?.publicUrl ?? ''
+    newRecipe.value.image_url = imageUrl // set the fetched imageUrl from supabase to the newRecipe...
   }
 
   const created_by_name = userStore.user?.email?.split('@')[0] || 'Anon'
 
-  // insert recipe into Supabase
-  const { data: insertedData, error: insertError } = await supabase
-    .from('recipes')
-    .insert([
-      {
-        ...newRecipe.value,
-        image_url: imageUrl,
-        ingredients: ingredients.value,
-        created_by: userStore.user.id,
-        created_by_name,
-      },
-    ])
-    .select() // returns the selected row...
+  try {
+    let savedData
 
-  if (insertError) {
-    error.value = insertError.message
-  } else {
-    const newRecipeId = insertedData[0].id
+    if (editId) {
+      // update the existing recipe...
+      const { data, error: updateError } = await supabase
+        .from('recipes')
+        .update({ ...newRecipe.value, created_by_name })
+        .eq('id', editId)
+        .select()
 
-    newRecipe.value = { name: '', image_url: '', duration: 0, difficulty: '', calories: 0 } // clear values...
-    ingredients.value = []
+      if (updateError) throw updateError
+
+      savedData = data
+    } else {
+      // insert recipe into Supabase
+      const { data, error: insertError } = await supabase
+        .from('recipes')
+        .insert([
+          {
+            ...newRecipe.value,
+            created_by: userStore.user.id,
+            created_by_name,
+          },
+        ])
+        .select() // returns the selected row...
+
+      if (insertError) throw insertError
+      savedData = data
+    }
+
+    const recipeId = savedData[0].id
+    //const newRecipeId = insertedData[0].id
+
+    // clear values...
+    newRecipe.value = {
+      name: '',
+      image_url: '',
+      duration: 0,
+      difficulty: '',
+      calories: 0,
+      ingredients: [],
+    }
     file.value = null
 
-    router.push(`/recipe/${newRecipeId}`) // route user to the new recipe...
+    router.push(`/recipe/${recipeId}`) // route user to the new recipe...
+  } catch (err: any) {
+    error.value = err.message || 'Something went wrong...'
+  } finally {
+    loading.value = false
   }
-
-  loading.value = false
 }
 
 onMounted(() => {
+  if (editId) fetchRecipeFromId(editId) // if theres a editId in the route, fetch the recipe data from supabase...
   setHeader({
     leftAction: 'back',
     rightAction: {
@@ -130,6 +175,8 @@ onUnmounted(clearHeader)
 
 <template>
   <div id="add-recipe" class="flex flex-col h-full">
+    <!-- Error message -->
+    <span v-if="error" class="pb-4 text-center">{{ error }}</span>
     <form @submit.prevent="addRecipe" class="flex flex-col gap-2 flex-1">
       <!-- Recipe name -->
       <input
@@ -177,7 +224,7 @@ onUnmounted(clearHeader)
         <label>Ingredients</label>
         <div class="tile ingredients flex flex-col gap-2">
           <div
-            v-for="(ingredient, index) in ingredients"
+            v-for="(ingredient, index) in newRecipe.ingredients"
             :key="index"
             class="flex gap-2 items-center"
           >
@@ -207,8 +254,6 @@ onUnmounted(clearHeader)
     <span class="text-center w-full block pt-2 opacity-50"
       >Your recipe will be visible to all users</span
     >
-    <!-- Error message -->
-    <span v-if="error" class="text-red-500 mt-4">{{ error }}</span>
   </div>
 </template>
 
