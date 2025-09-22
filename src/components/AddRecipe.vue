@@ -163,10 +163,12 @@ onMounted(() => {
   if (editId) fetchRecipeFromId(editId) // if theres a editId in the route, fetch the recipe data from supabase...
   setHeader({
     leftAction: 'back',
-    rightAction: {
-      icon: Check,
-      onClick: addRecipe,
-    },
+    rightActions: [
+      {
+        icon: Check,
+        onClick: addRecipe,
+      },
+    ],
   })
 })
 

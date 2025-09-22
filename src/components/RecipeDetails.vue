@@ -9,7 +9,7 @@ import LazyImage from './LazyImage.vue'
 // @ts-ignore
 import LoaderSpinner from './LoaderSpinner.vue'
 
-import { Plus, Edit } from 'lucide-vue-next'
+import { Plus, Edit, Trash } from 'lucide-vue-next'
 
 import { useHeader } from '@/composables/useHeader'
 const { setHeader, clearHeader } = useHeader()
@@ -55,6 +55,21 @@ const goToEditRecipe = () => {
   })
 }
 
+const deleteRecipe = async () => {
+  if (!confirm('Are you sure you want to delete this recipe?')) return
+
+  const recipeId = route.params.id as string
+
+  const { error } = await supabase.from('recipes').delete().eq('id', recipeId)
+
+  if (error) {
+    console.error('Error deleting recipe: ', error.message)
+    return
+  }
+
+  router.back() // push the user back to whence they came from...
+}
+
 // detecting whether the current user is the owner of the recipe...
 const isOwner = computed(() => {
   return recipe.value?.created_by === userStore.user?.id
@@ -65,10 +80,13 @@ onMounted(async () => {
   if (isOwner.value) {
     setHeader({
       leftAction: 'back',
-      rightAction: {
-        icon: Edit,
-        onClick: goToEditRecipe,
-      },
+      rightActions: [
+        {
+          icon: Edit,
+          onClick: goToEditRecipe,
+        },
+        { icon: Trash, onClick: deleteRecipe },
+      ],
     })
   } else {
     setHeader({ leftAction: 'back' })

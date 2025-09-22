@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { supabase } from '@/lib/supabase'
 import type { User } from '@supabase/supabase-js'
 
@@ -9,25 +9,57 @@ export const useUserStore = defineStore('user', () => {
   const SAVED_KEY = 'likedRecipes'
   const myRecipes = ref<Recipe[]>([])
 
-  // watcher needed to re-trigger fetching recipes since the userStore.user object isn't loaded fast enough...
-  // #TODO: these methods are now ran each time user changes?
-  watch(user, () => {
-    fetchSavedRecipes()
-    fetchMyRecipes()
-  })
+  const isInitialized = ref(false)
+  const isLoading = ref(false)
+
+  const initialize = async () => {
+    if (isInitialized.value) {
+      console.log('User already initialised...')
+      return
+    }
+
+    if (isLoading.value) {
+      console.log('Already loading user data...')
+      return
+    }
+
+    console.log('Initializing user store...')
+    isLoading.value = true
+
+    try {
+      await fetchUser()
+      if (user.value) {
+        await Promise.all([fetchSavedRecipes(), fetchMyRecipes()])
+      }
+    } catch (error) {
+      console.error('Error duing user store initialization: ', error)
+    } finally {
+      isLoading.value = false
+      isInitialized.value = true
+      console.log('Userstore is ready!')
+    }
+  }
 
   const fetchUser = async () => {
     const { data, error } = await supabase.auth.getUser()
     if (!error) user.value = data.user
   }
 
-  const setUser = (u: User | null) => {
+  const setUser = async (u: User | null) => {
     user.value = u
+    if (u) {
+      await fetchSavedRecipes()
+      await fetchMyRecipes()
+    } else {
+      savedRecipes.value = []
+      myRecipes.value = []
+    }
   }
 
   const logout = async () => {
     await supabase.auth.signOut()
-    user.value = null
+    await setUser(null)
+    isInitialized.value = false
   }
 
   // fetch the users's saved recipes...
@@ -114,9 +146,12 @@ export const useUserStore = defineStore('user', () => {
   return {
     user,
     savedRecipes,
+    myRecipes,
+    isInitialized,
+    isLoading,
+    initialize,
     fetchUser,
     fetchSavedRecipes,
-    myRecipes,
     fetchMyRecipes,
     saveRecipe,
     setUser,

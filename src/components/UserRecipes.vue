@@ -1,34 +1,60 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import RecipeCard from './RecipeCard.vue'
 import router from '@/router'
 
 import { useUserStore } from '@/stores/user'
-import { UtensilsCrossed } from 'lucide-vue-next'
+import { UtensilsCrossed, Plus } from 'lucide-vue-next'
 // @ts-ignore
 import LoaderSpinner from './LoaderSpinner.vue'
 import EmptyState from './EmptyState.vue'
 
+import { useHeader } from '@/composables/useHeader'
+const { setHeader, clearHeader } = useHeader()
+
 const userStore = useUserStore()
 
-const loadingRecipes = ref(true)
+const setHeaderActions = () => {
+  setHeader({
+    rightActions: [
+      {
+        icon: Plus,
+        onClick() {
+          router.push('/addrecipe')
+        },
+      },
+    ],
+  })
+}
 
 onMounted(async () => {
-  loadingRecipes.value = true
-  await userStore.fetchSavedRecipes()
-  loadingRecipes.value = false
+  if (userStore.user) {
+    setHeaderActions()
+  }
 })
+
+watch(
+  () => userStore.user,
+  (newUser) => {
+    if (newUser) {
+      setHeaderActions()
+    }
+  },
+  { immediate: true },
+)
+
+onUnmounted(clearHeader)
 </script>
 
 <template>
-  <LoaderSpinner v-if="loadingRecipes" />
+  <LoaderSpinner v-if="userStore.isLoading" />
   <div class="grids" v-else-if="userStore.savedRecipes.length || userStore.myRecipes.length">
-    <section v-if="userStore.savedRecipes.length" class="mb-4">
-      <p class="medium text2">Saved Recipes</p>
+    <section v-if="userStore.myRecipes.length" class="mb-4">
+      <p class="medium text2">My Recipes</p>
       <div class="recipes-grid">
         <RecipeCard
           class="recipe"
-          v-for="recipe in userStore.savedRecipes"
+          v-for="recipe in userStore.myRecipes"
           @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
           :key="recipe.id"
           :recipe="recipe"
@@ -38,12 +64,12 @@ onMounted(async () => {
       </div>
     </section>
 
-    <section v-if="userStore.myRecipes.length" class="mb-4">
-      <p class="medium text2">My Recipes</p>
+    <section v-if="userStore.savedRecipes.length" class="mb-4">
+      <p class="medium text2">Saved Recipes</p>
       <div class="recipes-grid">
         <RecipeCard
           class="recipe"
-          v-for="recipe in userStore.myRecipes"
+          v-for="recipe in userStore.savedRecipes"
           @select="(recipe: Recipe) => router.push(`/recipe/${recipe.id}`)"
           :key="recipe.id"
           :recipe="recipe"

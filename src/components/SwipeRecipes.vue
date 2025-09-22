@@ -13,15 +13,12 @@ import EmptyState from './EmptyState.vue'
 import LoaderSpinner from './LoaderSpinner.vue'
 
 import { useHeader } from '@/composables/useHeader'
-import { useUserStore } from '@/stores/user'
-const userStore = useUserStore()
 const { setHeader, clearHeader } = useHeader()
 
-const goToAddRecipe = () => {
-  router.push('/addrecipe')
-}
+import { useUserStore } from '@/stores/user'
+const userStore = useUserStore()
 
-const loadingRecipes = ref(true)
+const loadingRecipes = ref(false)
 
 const recipes = ref<Recipe[]>([]) // storing all recipes, fetched from supabase...
 // storing likes / disliked by user...
@@ -57,18 +54,35 @@ function shuffle(array: any) {
   return copy
 }
 
-onMounted(async () => {
-  loadRecipes()
-  await userStore.fetchUser()
-  if (userStore.user) {
-    setHeader({
-      rightAction: {
+const setHeaderActions = () => {
+  setHeader({
+    rightActions: [
+      {
         icon: Plus,
-        onClick: goToAddRecipe,
+        onClick() {
+          router.push('/addrecipe')
+        },
       },
-    })
+    ],
+  })
+}
+
+onMounted(async () => {
+  loadRecipes() // to populate deck...
+  if (userStore.user) {
+    setHeaderActions()
   }
 })
+
+watch(
+  () => userStore.user,
+  (newUser) => {
+    if (newUser) {
+      setHeaderActions()
+    }
+  },
+  { immediate: true },
+)
 
 onUnmounted(clearHeader)
 
@@ -88,7 +102,7 @@ const dislikeRecipe = () => {
 
 <template>
   <div class="flex flex-col flex-1 justify-center overflow-x-hidden">
-    <LoaderSpinner v-if="loadingRecipes" />
+    <LoaderSpinner v-if="loadingRecipes && userStore.isLoading" />
     <div v-else-if="currentRecipe">
       <section class="flex flex-col gap-2">
         <SwipeCard @like="likeRecipe" @dislike="dislikeRecipe">

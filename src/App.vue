@@ -19,7 +19,7 @@ import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 
 onMounted(async () => {
-  await userStore.fetchUser()
+  await userStore.initialize()
 })
 
 useThemeColor()

@@ -7,24 +7,28 @@ export type Action =
     }
   | 'back' // route back logic is handled in appHeader...
 
-const state = reactive<{ leftAction: Action | null; rightAction: Action | null }>({
+const state = reactive<{ leftAction: Action | null; rightActions: Action[] }>({
   leftAction: null,
-  rightAction: null,
+  rightActions: [],
 })
 
 export function useHeader() {
   const leftAction = computed(() => state.leftAction)
-  const rightAction = computed(() => state.rightAction)
+  const rightActions = computed(() => state.rightActions)
 
-  function setHeader(config: { leftAction?: Action | null; rightAction?: Action | null }) {
+  function setHeader(config: {
+    leftAction?: Action | null
+    rightAction?: Action | null
+    rightActions?: Action[]
+  }) {
     state.leftAction = config.leftAction ?? null
-    state.rightAction = config.rightAction ?? null
+    state.rightActions = config.rightActions ?? []
   }
 
   function clearHeader() {
     state.leftAction = null
-    state.rightAction = null
+    state.rightActions = []
   }
 
-  return { leftAction, rightAction, setHeader, clearHeader }
+  return { leftAction, rightActions, setHeader, clearHeader }
 }
