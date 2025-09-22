@@ -1,19 +1,17 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from 'vue'
-import { supabase } from '@/lib/supabase'
-
 import { useRoute, useRouter } from 'vue-router'
-const router = useRouter()
-const route = useRoute()
-
 import { useUserStore } from '@/stores/user'
-const userStore = useUserStore()
-
 import { ImagePlus, X, Check } from 'lucide-vue-next'
 import LazyImage from './LazyImage.vue'
-
 import { useHeader } from '@/composables/useHeader'
+import { useRecipeStore } from '@/stores/recipe'
+
 const { setHeader, clearHeader } = useHeader()
+const router = useRouter()
+const route = useRoute()
+const userStore = useUserStore()
+const recipeStore = useRecipeStore()
 
 const newRecipe = ref<Partial<Recipe>>({
   name: '',
@@ -24,24 +22,7 @@ const newRecipe = ref<Partial<Recipe>>({
   ingredients: [],
 })
 
-// getting recipe id from route...
-const editId = route.query.editId as string | undefined
-
-// fetching the recipe to be edited from supabase on id...
-const fetchRecipeFromId = async (recipeIdFromRouter: string) => {
-  const { data: recipeData, error } = await supabase
-    .from('recipes')
-    .select('*')
-    .eq('id', recipeIdFromRouter)
-    .single() // fetch the recipe to edit...
-
-  if (error || !recipeData) {
-    console.error('Failed to fetch recipe from id for edit: ', error)
-  }
-
-  newRecipe.value = { ...recipeData }
-  previewUrl.value = recipeData.image_url || null
-}
+const editId = route.query.editId as string | undefined // getting recipe id from route...
 
 const addIngredient = () => {
   newRecipe.value.ingredients?.push({ name: '', amount: '' })
@@ -68,105 +49,36 @@ const handleFileChange = (e: Event) => {
   }
 }
 
-const loading = ref(false)
 const error = ref<string | null>(null)
 
-const addRecipe = async () => {
-  // check whether user is logged in...
+const handleSave = async () => {
   if (!userStore.user) {
-    error.value = 'You must be logged in to add a recipe...'
-    loading.value = false
+    error.value = 'You must be logged in'
     return
   }
-
-  loading.value = true
-  error.value = null
-  let imageUrl = ''
-
-  if (file.value) {
-    const fileExt = file.value.name.split('.').pop()
-    const fileName = `${userStore.user?.id}_${Date.now()}.${fileExt}`
-
-    // upload file to supabase bucket...
-    const { error: uploadError } = await supabase.storage
-      .from('recipe_images')
-      .upload(fileName, file.value)
-
-    if (uploadError) {
-      error.value = uploadError.message
-      loading.value = false
-      return
-    }
-
-    // get public url...
-    const { data: publicData } = supabase.storage.from('recipe_images').getPublicUrl(fileName)
-    imageUrl = publicData?.publicUrl ?? ''
-    newRecipe.value.image_url = imageUrl // set the fetched imageUrl from supabase to the newRecipe...
-  }
-
-  const created_by_name = userStore.user?.email?.split('@')[0] || 'Anon'
-
-  try {
-    let savedData
-
-    if (editId) {
-      // update the existing recipe...
-      const { data, error: updateError } = await supabase
-        .from('recipes')
-        .update({ ...newRecipe.value, created_by_name })
-        .eq('id', editId)
-        .select()
-
-      if (updateError) throw updateError
-
-      savedData = data
-    } else {
-      // insert recipe into Supabase
-      const { data, error: insertError } = await supabase
-        .from('recipes')
-        .insert([
-          {
-            ...newRecipe.value,
-            created_by: userStore.user.id,
-            created_by_name,
-          },
-        ])
-        .select() // returns the selected row...
-
-      if (insertError) throw insertError
-      savedData = data
-    }
-
-    const recipeId = savedData[0].id
-    //const newRecipeId = insertedData[0].id
-
-    // clear values...
-    newRecipe.value = {
-      name: '',
-      image_url: '',
-      duration: 0,
-      difficulty: '',
-      calories: 0,
-      ingredients: [],
-    }
-    file.value = null
-
-    router.push(`/recipe/${recipeId}`) // route user to the new recipe...
-  } catch (err: any) {
-    error.value = err.message || 'Something went wrong...'
-  } finally {
-    loading.value = false
-  }
+  const savedRecipe = await recipeStore.addOrUpdateRecipe(
+    newRecipe.value,
+    file.value,
+    userStore.user,
+  )
+  if (savedRecipe) router.push(`/recipe/${savedRecipe.id}`)
 }
 
-onMounted(() => {
-  if (editId) fetchRecipeFromId(editId) // if theres a editId in the route, fetch the recipe data from supabase...
+onMounted(async () => {
+  if (editId) {
+    // if there is an editId, fetch the recipe and populate the inputs...
+    const recipe = await recipeStore.getRecipeById(editId)
+    if (recipe) {
+      newRecipe.value = { ...recipe }
+      previewUrl.value = recipe.image_url || null
+    }
+  }
   setHeader({
     leftAction: 'back',
     rightActions: [
       {
         icon: Check,
-        onClick: addRecipe,
+        onClick: handleSave,
       },
     ],
   })
@@ -179,7 +91,7 @@ onUnmounted(clearHeader)
   <div id="add-recipe" class="flex flex-col h-full">
     <!-- Error message -->
     <span v-if="error" class="pb-4 text-center">{{ error }}</span>
-    <form @submit.prevent="addRecipe" class="flex flex-col gap-2 flex-1">
+    <form @submit.prevent="handleSave" class="flex flex-col gap-2 flex-1">
       <!-- Recipe name -->
       <input
         v-model="newRecipe.name"

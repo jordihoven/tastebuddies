@@ -2,6 +2,7 @@
 // @ts-ignore
 import RecipeInfo from './RecipeInfo.vue'
 import LazyImage from './LazyImage.vue'
+
 // #TODO: feel like this can be done cleaner...
 const props = withDefaults(
   defineProps<{

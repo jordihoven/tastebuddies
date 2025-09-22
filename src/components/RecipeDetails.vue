@@ -1,49 +1,25 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { supabase } from '@/lib/supabase.ts'
-
+import { useRecipeStore } from '@/stores/recipe'
 // @ts-ignore
 import RecipeInfo from './RecipeInfo.vue'
 import LazyImage from './LazyImage.vue'
 // @ts-ignore
 import LoaderSpinner from './LoaderSpinner.vue'
-
 import { Plus, Edit, Trash } from 'lucide-vue-next'
-
-import { useHeader } from '@/composables/useHeader'
-const { setHeader, clearHeader } = useHeader()
-
-const route = useRoute() // current route object, with path, params, query, name...
-const recipe = ref<RecipeDetails | null>(null)
-
 import { useUserStore } from '@/stores/user'
 import router from '@/router'
+import { useHeader } from '@/composables/useHeader'
+
+const { setHeader, clearHeader } = useHeader()
+const recipeStore = useRecipeStore()
+const route = useRoute() // current route object, with path, params, query, name...
+const recipe = ref<Recipe | null>(null)
 const userStore = useUserStore()
 
-interface Ingredient {
-  name: string
-  amount: string
-}
-
-interface RecipeDetails extends Recipe {
-  ingredients: Ingredient[]
-  instructions: string
-}
-
 async function loadRecipe() {
-  const { data, error } = await supabase
-    .from('recipes')
-    .select('*')
-    .eq('id', route.params.id)
-    .single()
-
-  if (error) {
-    console.error(error)
-    return
-  }
-
-  recipe.value = data
+  recipe.value = await recipeStore.getRecipeById(route.params.id as string)
 }
 
 const goToEditRecipe = () => {
@@ -55,19 +31,16 @@ const goToEditRecipe = () => {
   })
 }
 
-const deleteRecipe = async () => {
+const handleDeleteRecipe = async () => {
+  if (!recipe.value) return
   if (!confirm('Are you sure you want to delete this recipe?')) return
 
-  const recipeId = route.params.id as string
-
-  const { error } = await supabase.from('recipes').delete().eq('id', recipeId)
-
-  if (error) {
-    console.error('Error deleting recipe: ', error.message)
-    return
+  const success = await recipeStore.deleteRecipeById(recipe.value.id)
+  if (success) {
+    router.back()
+  } else {
+    alert('Failed to delete recipe. Try again...')
   }
-
-  router.back() // push the user back to whence they came from...
 }
 
 // detecting whether the current user is the owner of the recipe...
@@ -85,7 +58,7 @@ onMounted(async () => {
           icon: Edit,
           onClick: goToEditRecipe,
         },
-        { icon: Trash, onClick: deleteRecipe },
+        { icon: Trash, onClick: handleDeleteRecipe },
       ],
     })
   } else {
@@ -116,7 +89,7 @@ onUnmounted(clearHeader)
       <Plus :size="16" />
       Save recipe
     </button>
-    <section class="flex flex-col gap-1" v-if="recipe.ingredients.length > 0">
+    <section class="flex flex-col gap-1" v-if="recipe.ingredients?.length">
       <span class="medium">Ingredients</span>
       <div class="ingredients">
         <div

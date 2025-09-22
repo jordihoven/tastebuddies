@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import { supabase } from '@/lib/supabase'
 
 import { useUserStore } from '@/stores/user'
@@ -10,13 +10,6 @@ const step = ref('email')
 const email = ref('')
 const otp = ref('')
 const loading = ref(false)
-
-onMounted(async () => {
-  const { data, error } = await supabase.auth.getUser()
-  if (!error) {
-    userStore.user = data.user
-  }
-})
 
 const sendOtp = async () => {
   if (!email.value) return alert('Enter email...')
@@ -109,7 +102,7 @@ const formatUsername = (email: any) => {
   <div class="profile-page">
     <div v-if="!userStore.user">
       <div v-if="step === 'email'" class="flex flex-col gap-2 step">
-        <p class="text2 text-center">Sign up to save recipes and improve your matches.</p>
+        <p class="text2 text-center">Sign up to add recipes to the deck.</p>
         <input type="email" v-model="email" placeholder="Enter email address" />
         <button
           @click="sendOtp"

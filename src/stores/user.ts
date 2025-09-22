@@ -13,26 +13,20 @@ export const useUserStore = defineStore('user', () => {
   const isLoading = ref(false)
 
   const initialize = async () => {
-    if (isInitialized.value) {
-      console.log('User already initialised...')
-      return
-    }
-
-    if (isLoading.value) {
-      console.log('Already loading user data...')
-      return
-    }
-
     console.log('Initializing user store...')
     isLoading.value = true
 
     try {
       await fetchUser()
       if (user.value) {
+        // if there is a user, fetch saved & created recipes...
         await Promise.all([fetchSavedRecipes(), fetchMyRecipes()])
+      } else {
+        // if guest, fetch savedRecipes (from localstorage)...
+        await Promise.all([fetchSavedRecipes()])
       }
     } catch (error) {
-      console.error('Error duing user store initialization: ', error)
+      console.error('Error during user store initialization: ', error)
     } finally {
       isLoading.value = false
       isInitialized.value = true
