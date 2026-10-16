@@ -7,8 +7,6 @@ import { useUserStore } from './user'
 export const useRecipeStore = defineStore('recipe', () => {
   const userStore = useUserStore()
   const recipes = ref<Recipe[]>([])
-  const likedRecipes = ref<Recipe[]>([])
-  const dislikedRecipes = ref<Recipe[]>([])
   const isLoading = ref(false)
 
   const currentRecipe = computed(() => recipes.value[0] ?? null)
@@ -47,17 +45,7 @@ export const useRecipeStore = defineStore('recipe', () => {
     }
   }
 
-  const likeRecipe = async () => {
-    const recipe = recipes.value.shift() // remove the liked recipe from the recipes deck...
-    if (!recipe) return
-    likedRecipes.value.push(recipe) // add recipe to likedRecipe array...
-    return recipe
-  }
-  const dislikeRecipe = () => {
-    const recipe = recipes.value.shift() // remove the recipe from the array...
-    if (!recipe) return
-    dislikedRecipes.value.push(recipe)
-  }
+  const advance = () => recipes.value.shift() // drop the top card off the deck...
 
   // Fisher-Yates shuffle...
   function shuffle(array: any) {
@@ -136,8 +124,7 @@ export const useRecipeStore = defineStore('recipe', () => {
     getRecipeById,
     currentRecipe,
     isLoading,
-    likeRecipe,
-    dislikeRecipe,
+    advance,
     addOrUpdateRecipe,
     errorAddingOrUpdating,
     deleteRecipeById,

@@ -22,6 +22,15 @@ function setHeaderActions() {
   })
 }
 
+// like: drop card + open detail. dislike: drop card.
+function like() {
+  const recipe = recipeStore.advance()
+  if (recipe) router.push(`/recipe/${recipe.id}`)
+}
+function dislike() {
+  recipeStore.advance()
+}
+
 // fetch recipes on mount
 onMounted(async () => {
   if (!recipeStore.recipes.length) await recipeStore.getRecipesForDeck() // fetch a fresh deck if the recipes store is empty...
@@ -43,19 +52,16 @@ onUnmounted(clearHeader)
     <LoaderSpinner v-if="isLoading" />
     <div v-else-if="currentRecipe">
       <section class="flex flex-col gap-2">
-        <SwipeCard
-          @like="router.push(`/recipe/${currentRecipe.id}`)"
-          @dislike="recipeStore.dislikeRecipe()"
-        >
+        <SwipeCard @like="like" @dislike="dislike">
           <RecipeCard :recipe="currentRecipe" :hasRecipeInfo="true" />
         </SwipeCard>
       </section>
 
       <section class="recipe-actions flex gap-2 justify-center mt-4">
-        <button @click="recipeStore.dislikeRecipe()" class="dislike">
+        <button @click="dislike" class="dislike">
           <HeartOff color="var(--danger)" />
         </button>
-        <button @click="router.push(`/recipe/${currentRecipe.id}`)" class="like">
+        <button @click="like" class="like">
           <Heart color="var(--primary)" />
         </button>
       </section>
