@@ -6,6 +6,7 @@ import { ImagePlus, X, Check } from 'lucide-vue-next'
 import LazyImage from './LazyImage.vue'
 import { useHeader } from '@/composables/useHeader'
 import { useRecipeStore } from '@/stores/recipe'
+import { downscaleImage } from '@/lib/image'
 
 const { setHeader, clearHeader } = useHeader()
 const router = useRouter()
@@ -61,9 +62,10 @@ const handleSave = async () => {
   error.value = null
   saving.value = true
   try {
+    const uploadFile = file.value ? await downscaleImage(file.value) : null
     const savedRecipe = await recipeStore.addOrUpdateRecipe(
       newRecipe.value,
-      file.value,
+      uploadFile,
       userStore.user,
     )
     if (savedRecipe) router.push(`/recipe/${savedRecipe.id}`)

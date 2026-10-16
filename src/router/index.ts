@@ -1,26 +1,32 @@
 import { createRouter, createWebHistory } from 'vue-router'
 
-import UserProfile from '@/components/UserProfile.vue'
-import UserRecipes from '@/components/UserRecipes.vue'
-import SwipeRecipes from '@/components/SwipeRecipes.vue'
-import RecipeDetails from '@/components/RecipeDetails.vue'
-import AddRecipe from '@/components/AddRecipe.vue'
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     { path: '/', redirect: '/swipe' },
-    { path: '/profile', component: UserProfile, meta: { title: 'Profile' } },
-    { path: '/recipes', component: UserRecipes, meta: { title: 'Recipes' } },
-    { path: '/swipe', component: SwipeRecipes, meta: { title: 'Swipe' } },
+    {
+      path: '/profile',
+      component: () => import('@/components/UserProfile.vue'),
+      meta: { title: 'Profile' },
+    },
+    {
+      path: '/recipes',
+      component: () => import('@/components/UserRecipes.vue'),
+      meta: { title: 'Recipes' },
+    },
+    {
+      path: '/swipe',
+      component: () => import('@/components/SwipeRecipes.vue'),
+      meta: { title: 'Swipe' },
+    },
     {
       path: '/addrecipe',
-      component: AddRecipe,
+      component: () => import('@/components/AddRecipe.vue'),
       meta: { title: 'Add Recipe', hideTabBar: true },
     },
     {
       path: '/recipe/:id',
-      component: RecipeDetails,
+      component: () => import('@/components/RecipeDetails.vue'),
       meta: { title: 'Recipe', hideTabBar: true },
     },
   ],

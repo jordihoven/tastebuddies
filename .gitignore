@@ -14,6 +14,11 @@ dist-ssr
 coverage
 *.local
 
+# env files (may hold the Supabase service-role key used by scripts/)
+.env
+.env.*
+!.env.example
+
 /cypress/videos/
 /cypress/screenshots/
 

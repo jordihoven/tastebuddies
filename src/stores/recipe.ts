@@ -72,7 +72,7 @@ export const useRecipeStore = defineStore('recipe', () => {
         const fileName = `${user.id}_${Date.now()}.${fileExt}`
         const { error: uploadError } = await supabase.storage
           .from('recipe_images')
-          .upload(fileName, file)
+          .upload(fileName, file, { cacheControl: '31536000' })
         if (uploadError) throw uploadError
         const { data: publicData } = supabase.storage.from('recipe_images').getPublicUrl(fileName)
         imageUrl = publicData?.publicUrl ?? ''

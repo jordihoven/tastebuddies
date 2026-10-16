@@ -18,9 +18,10 @@ const loaded = ref(false)
       :src="src"
       :alt="alt"
       loading="lazy"
+      decoding="async"
       @load="loaded = true"
       :class="[
-        'block w-full h-full object-cover transition-opacity duration-[1.5s] ease-in-out',
+        'block w-full h-full object-cover transition-opacity duration-300 ease-in-out',
         loaded ? 'opacity-100' : 'opacity-0',
       ]"
     />
