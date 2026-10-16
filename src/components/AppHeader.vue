@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, unref } from 'vue'
 import router from '@/router'
 import { ArrowLeft } from 'lucide-vue-next'
 
@@ -45,6 +45,7 @@ const onLeftClick = () => {
           v-for="(action, index) in rightActions"
           :key="index"
           @click="action.onClick?.()"
+          :disabled="unref(action.disabled) || false"
           class="header-button text2"
         >
           <component :is="action.icon" :size="20" />

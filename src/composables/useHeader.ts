@@ -1,13 +1,14 @@
-import { reactive, computed } from 'vue'
+import { shallowReactive, computed, type Ref } from 'vue'
 
 export type Action =
   | {
       icon: any // :component...
       onClick: () => void
+      disabled?: boolean | Ref<boolean>
     }
   | 'back' // route back logic is handled in appHeader...
 
-const state = reactive<{ leftAction: Action | null; rightActions: Action[] }>({
+const state = shallowReactive<{ leftAction: Action | null; rightActions: Action[] }>({
   leftAction: null,
   rightActions: [],
 })

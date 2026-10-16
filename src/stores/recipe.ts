@@ -97,7 +97,10 @@ export const useRecipeStore = defineStore('recipe', () => {
       }
       return savedData?.[0] ?? null
     } catch (error: any) {
-      errorAddingOrUpdating.value = error.message || 'Something went wrong'
+      errorAddingOrUpdating.value =
+        error.code === '23505'
+          ? 'You already have a recipe with this name.'
+          : error.message || 'Something went wrong'
       return null
     } finally {
       isLoading.value = false

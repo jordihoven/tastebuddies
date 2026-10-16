@@ -1,6 +1,6 @@
 interface Recipe {
   id: string
-  created_at: string // timestampz from supabase
+  created_at?: string // timestampz from supabase
   name: string
   duration?: number
   calories?: number

@@ -50,18 +50,27 @@ const handleFileChange = (e: Event) => {
 }
 
 const error = ref<string | null>(null)
+const saving = ref(false)
 
 const handleSave = async () => {
+  if (saving.value) return // guard against double-submit...
   if (!userStore.user) {
     error.value = 'You must be logged in'
     return
   }
-  const savedRecipe = await recipeStore.addOrUpdateRecipe(
-    newRecipe.value,
-    file.value,
-    userStore.user,
-  )
-  if (savedRecipe) router.push(`/recipe/${savedRecipe.id}`)
+  error.value = null
+  saving.value = true
+  try {
+    const savedRecipe = await recipeStore.addOrUpdateRecipe(
+      newRecipe.value,
+      file.value,
+      userStore.user,
+    )
+    if (savedRecipe) router.push(`/recipe/${savedRecipe.id}`)
+    else error.value = recipeStore.errorAddingOrUpdating || 'Something went wrong'
+  } finally {
+    saving.value = false
+  }
 }
 
 onMounted(async () => {
@@ -79,6 +88,7 @@ onMounted(async () => {
       {
         icon: Check,
         onClick: handleSave,
+        disabled: saving, // fade + block the publish button while saving...
       },
     ],
   })

@@ -35,8 +35,10 @@ export const useUserStore = defineStore('user', () => {
   }
 
   const fetchUser = async () => {
-    const { data, error } = await supabase.auth.getUser()
-    if (!error) user.value = data.user
+    // getSession reads the stored session (instant, no network); the SDK
+    // refreshes the token in the background and RLS enforces access.
+    const { data, error } = await supabase.auth.getSession()
+    if (!error) user.value = data.session?.user ?? null
   }
 
   const setUser = async (u: User | null) => {
@@ -58,32 +60,30 @@ export const useUserStore = defineStore('user', () => {
 
   // fetch the users's saved recipes...
   const fetchSavedRecipes = async () => {
+    const RECIPE_FIELDS = 'id, name, image_url, created_by_name, created_by'
+
     if (user.value) {
+      // one query: inner join through saved_recipes (needs recipe_id → recipes.id FK)...
       const { data, error } = await supabase
-        .from('saved_recipes')
-        .select('recipe_id')
-        .eq('user_id', user.value?.id)
+        .from('recipes')
+        .select(`${RECIPE_FIELDS}, saved_recipes!inner(user_id)`)
+        .eq('saved_recipes.user_id', user.value.id)
 
       if (error) {
         console.error('Error: ', error)
         return
       }
 
-      const recipeIds = data.map((d) => d.recipe_id)
-      if (!recipeIds.length) return
-
-      const { data: recipesData, error: recipesError } = await supabase
-        .from('recipes')
-        .select('*')
-        .in('id', recipeIds)
-
-      if (!recipesError) savedRecipes.value = recipesData ?? []
+      savedRecipes.value = data ?? []
     } else {
       // Guest → localStorage
       const recipeIds = JSON.parse(localStorage.getItem(SAVED_KEY) || '[]')
       if (!recipeIds.length) return
 
-      const { data, error } = await supabase.from('recipes').select('*').in('id', recipeIds)
+      const { data, error } = await supabase
+        .from('recipes')
+        .select(RECIPE_FIELDS)
+        .in('id', recipeIds)
       if (!error) savedRecipes.value = data ?? []
     }
   }
@@ -97,7 +97,7 @@ export const useUserStore = defineStore('user', () => {
 
     const { data, error } = await supabase
       .from('recipes')
-      .select('*')
+      .select('id, name, image_url, created_by_name, created_by')
       .eq('created_by', user.value.id)
 
     if (error) {
