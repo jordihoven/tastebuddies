@@ -30,12 +30,7 @@ const props = withDefaults(
       </p>
       <p class="medium clip-text">{{ props.recipe.name }}</p>
       <RecipeInfo
-        v-if="
-          props.hasRecipeInfo &&
-          props.recipe.duration &&
-          props.recipe.calories &&
-          props.recipe.difficulty
-        "
+        v-if="props.hasRecipeInfo"
         :duration="props.recipe.duration"
         :calories="props.recipe.calories"
         :difficulty="props.recipe.difficulty"

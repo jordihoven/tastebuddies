@@ -48,7 +48,7 @@ onUnmounted(clearHeader)
 </script>
 
 <template>
-  <div class="flex flex-col flex-1 justify-center overflow-x-hidden">
+  <div class="flex flex-col flex-1 justify-center">
     <LoaderSpinner v-if="isLoading" />
     <div v-else-if="currentRecipe">
       <section class="flex flex-col gap-2">

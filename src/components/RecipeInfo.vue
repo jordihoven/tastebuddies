@@ -10,15 +10,15 @@ import { Clock, Apple, Star } from 'lucide-vue-next'
 
 <template>
   <div class="flex gap-2">
-    <div class="duration flex gap-1 items-center">
+    <div v-if="props.duration" class="duration flex gap-1 items-center">
       <Clock :size="16" color="var(--text2)" />
       <span class="medium">{{ props.duration }}min</span>
     </div>
-    <div class="carlories flex gap-1 items-center">
+    <div v-if="props.calories" class="carlories flex gap-1 items-center">
       <Apple :size="16" color="var(--text2)" />
       <span class="medium">{{ props.calories }}kcal</span>
     </div>
-    <div class="difficulty flex gap-1 items-center">
+    <div v-if="props.difficulty" class="difficulty flex gap-1 items-center">
       <Star :size="16" color="var(--text2)" />
       <span class="medium">{{ props.difficulty }}</span>
     </div>
