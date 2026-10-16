@@ -1,39 +1,13 @@
 # tastebuddies
 
-This template should help get you started developing with Vue 3 in Vite.
+tinder for recipes.
 
-## Recommended IDE Setup
+started as a solution to me and my girlfriend walking into grocery stores and asking 'what do you want to eat tonight?' which resulted in us, slighly annoyed, scrolling trough google images or even worse: chatgpt chats.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+the idea is that you share a phone, swipe trough recipes and swipe the ones you're interested in to the right.
 
-## Type Support for `.vue` Imports in TS
+i did find that it has turned into more of a 'catch em all' for saving recipes instead of actually deciding what to eat.
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+didn't touch the project for a while, decided to revive it now that agents have made me obsolete (i wrote the codebase by hand in a full project obsessed week). now, i'm building everything with Opencode...
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Run Unit Tests with [Vitest](https://vitest.dev/)
-
-```sh
-npm run test:unit
-```
+interested to see what i come up with for this app.

@@ -59,8 +59,10 @@ a {
   color: var(--text1);
   text-decoration: none;
 }
-a:hover {
-  color: var(--link);
+@media (hover: hover) {
+  a:hover {
+    color: var(--link);
+  }
 }
 
 button {
@@ -77,8 +79,14 @@ button {
   padding: 4px var(--xs-spacing);
   transition: var(--transition);
 }
-button:hover {
-  cursor: pointer;
+@media (hover: hover) {
+  button:hover {
+    cursor: pointer;
+    filter: brightness(90%);
+  }
+}
+/* touch devices have no hover; :active gives press feedback instead */
+button:active {
   filter: brightness(90%);
 }
 
