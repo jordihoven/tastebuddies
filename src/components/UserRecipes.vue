@@ -100,13 +100,8 @@ onUnmounted(clearHeader)
 .recipe {
   transition: var(--transition);
 }
-@media (hover: hover) {
-  .recipe:hover {
-    cursor: pointer;
-    filter: brightness(95%);
-  }
-}
-.recipe:active {
+.recipe:hover {
+  cursor: pointer;
   filter: brightness(95%);
 }
 

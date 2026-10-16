@@ -59,10 +59,8 @@ a {
   color: var(--text1);
   text-decoration: none;
 }
-@media (hover: hover) {
-  a:hover {
-    color: var(--link);
-  }
+a:hover {
+  color: var(--link);
 }
 
 button {
@@ -79,14 +77,19 @@ button {
   padding: 4px var(--xs-spacing);
   transition: var(--transition);
 }
-@media (hover: hover) {
-  button:hover {
-    cursor: pointer;
-    filter: brightness(90%);
-  }
+/* iOS: skip the 350ms double-tap delay. A home-screen (standalone) web app does
+   not get the fast-tap optimization normal Safari gives, so opt in explicitly.
+   touch-action on any ancestor opts all its children in. */
+html {
+  touch-action: manipulation;
 }
-/* touch devices have no hover; :active gives press feedback instead */
-button:active {
+
+/* iOS: mark controls as tappable for its click-target detection */
+a,
+button {
+  cursor: pointer;
+}
+button:hover {
   filter: brightness(90%);
 }
 

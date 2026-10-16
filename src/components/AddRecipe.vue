@@ -210,18 +210,11 @@ select {
   transition: var(--transition);
 }
 
-@media (hover: hover) {
-  .image-dropzone:hover,
-  select:hover {
-    border: 1px solid var(--primary);
-    box-shadow: 0px 0px 4px var(--primary);
-    cursor: pointer;
-  }
-}
-.image-dropzone:active,
-select:active {
+.image-dropzone:hover,
+select:hover {
   border: 1px solid var(--primary);
   box-shadow: 0px 0px 4px var(--primary);
+  cursor: pointer;
 }
 
 :deep(.lazy-image img) {

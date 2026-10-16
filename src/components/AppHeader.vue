@@ -76,12 +76,7 @@ header#app-header {
   padding: 4px; /* so the header remains the same height, whether there's text or an icon */
 }
 
-@media (hover: hover) {
-  .header-button:hover {
-    background-color: var(--background2);
-  }
-}
-.header-button:active {
+.header-button:hover {
   background-color: var(--background2);
 }
 
