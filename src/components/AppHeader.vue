@@ -2,9 +2,10 @@
 import { useRoute } from 'vue-router'
 import { computed, unref } from 'vue'
 import router from '@/router'
-import { ArrowLeft } from 'lucide-vue-next'
+import { ArrowLeft, LoaderPinwheel } from 'lucide-vue-next'
 
 import { useHeader } from '@/composables/useHeader'
+import LoaderSpinner from './LoaderSpinner.vue'
 const { leftAction, rightActions } = useHeader()
 
 const route = useRoute()
@@ -48,7 +49,8 @@ const onLeftClick = () => {
           :disabled="unref(action.disabled) || false"
           class="header-button text2"
         >
-          <component :is="action.icon" :size="20" />
+          <LoaderSpinner v-if="action.icon === LoaderPinwheel" :full-height="false" />
+          <component v-else :is="action.icon" :size="20" />
         </button>
       </div>
     </div>
@@ -77,4 +79,5 @@ header#app-header {
 .header-button:hover {
   background-color: var(--background2);
 }
+
 </style>

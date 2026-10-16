@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { ImagePlus, X, Check } from 'lucide-vue-next'
+import { ImagePlus, X, Check, LoaderPinwheel } from 'lucide-vue-next'
 import LazyImage from './LazyImage.vue'
 import { useHeader } from '@/composables/useHeader'
 import { useRecipeStore } from '@/stores/recipe'
@@ -59,6 +59,15 @@ const handleSave = async () => {
     error.value = 'You must be logged in'
     return
   }
+  // validation...
+  if (!newRecipe.value.name?.trim()) {
+    error.value = 'Recipe name is required'
+    return
+  }
+  if (!file.value && !newRecipe.value.image_url) {
+    error.value = 'Recipe image is required'
+    return
+  }
   error.value = null
   saving.value = true
   try {
@@ -75,6 +84,19 @@ const handleSave = async () => {
   }
 }
 
+const updateHeader = () => {
+  setHeader({
+    leftAction: 'back',
+    rightActions: [
+      {
+        icon: saving.value ? LoaderPinwheel : Check,
+        onClick: handleSave,
+        disabled: saving, // fade + block the publish button while saving...
+      },
+    ],
+  })
+}
+
 onMounted(async () => {
   if (editId) {
     // if there is an editId, fetch the recipe and populate the inputs...
@@ -84,17 +106,10 @@ onMounted(async () => {
       previewUrl.value = recipe.image_url || null
     }
   }
-  setHeader({
-    leftAction: 'back',
-    rightActions: [
-      {
-        icon: Check,
-        onClick: handleSave,
-        disabled: saving, // fade + block the publish button while saving...
-      },
-    ],
-  })
+  updateHeader()
 })
+
+watch(saving, updateHeader)
 
 onUnmounted(clearHeader)
 </script>

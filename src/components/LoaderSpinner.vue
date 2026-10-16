@@ -1,9 +1,18 @@
 <script setup lang="ts">
 import { LoaderPinwheel } from 'lucide-vue-next'
+withDefaults(
+  defineProps<{
+    fullHeight?: boolean
+  }>(),
+  { fullHeight: true },
+)
 </script>
 
 <template>
-  <div class="flex flex-col gap-2 justify-center items-center h-full">
+  <div
+    class="loader-wrapper flex flex-col gap-2 justify-center items-center"
+    :class="{ 'h-full': fullHeight }"
+  >
     <LoaderPinwheel :size="20" class="spin primary" />
   </div>
 </template>
@@ -20,5 +29,9 @@ import { LoaderPinwheel } from 'lucide-vue-next'
 
 .spin {
   animation: spin 1s linear infinite;
+}
+
+.loader-wrapper.h-full {
+  height: 100%;
 }
 </style>
